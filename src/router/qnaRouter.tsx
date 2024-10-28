@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { RouteObject, Navigate } from 'react-router-dom';
-import SuspenseLoader from '../../../tripwhiz/src/components/SuspenseLoader';
+import SuspenseLoader from '../components/SuspenseLoader';
 
 const Loader = (Component) => (props) =>
   (
@@ -10,11 +10,11 @@ const Loader = (Component) => (props) =>
   );
 
 const QnAList = Loader(
-  lazy(() => import('../../../tripwhiz/src/qna/pages/QnaListPage'))
+  lazy(() => import('../qna/pages/QnaListPage'))
 );
 
 const QnARead = Loader(
-  lazy(() => import('../../../tripwhiz/src/qna/pages/QnaReadPage'))
+  lazy(() => import('../qna/pages/QnaReadPage'))
 );
 
 const qnaRouter: RouteObject[] = [

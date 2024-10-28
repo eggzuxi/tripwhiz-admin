@@ -37,37 +37,37 @@ export const getOneQuestion = async (qno: string): Promise<IAnswer> => {
   }
 };
 
-// // 답변을 제출하는 API 호출
-// export const postQnaAnswer = async (ano: number, answer: string): Promise<void> => {
-//   try {
-//     const addAnswer = {
-//       acontent: answer,
-//       updated_date: new Date()
-//     };
-//     await axios.post(`/api/ans/add/${ano}`, addAnswer);
-//   } catch (error) {
-//     console.error('답변 제출에 실패했습니다.', error);
-//     throw error;
-//   }
-// };
-//
-// // Q&A 수정 API 호출
-// export const updateAnswer = async (ano: number, updatedQna: IAnswer): Promise<void> => {
-//   try {
-//     await axios.put(`/api/ans/update/${ano}`, updatedQna);
-//   } catch (error) {
-//     console.error('수정에 실패했습니다.', error);
-//     throw error;
-//   }
-// };
-//
-// // Q&A 삭제 API 호출
-// export const deleteAnswer = async (ano: number): Promise<void> => {
-//   try {
-//     await axios.delete(`/api/ans/delete/${ano}`);
-//   } catch (error) {
-//     console.error('삭제에 실패했습니다.', error);
-//     throw error;
-//   }
-// };
-//
+// 답변을 제출하는 API 호출
+export const postQnaAnswer = async (ano: number, answer: string): Promise<void> => {
+  try {
+    const addAnswer = {
+      acontent: answer,
+      updated_date: new Date()
+    };
+    await axios.post(`/api/ans/add/${ano}`, addAnswer);
+  } catch (error) {
+    console.error('답변 제출에 실패했습니다.', error);
+    throw error;
+  }
+};
+
+// Q&A 수정 API 호출
+export const updateAnswer = async (ano: number, updatedQna: IAnswer): Promise<void> => {
+  try {
+    await axios.put(`/api/ans/update/${ano}`, updatedQna);
+  } catch (error) {
+    console.error('수정에 실패했습니다.', error);
+    throw error;
+  }
+};
+
+// Q&A 삭제 API 호출
+export const deleteAnswer = async (ano: number): Promise<void> => {
+  try {
+    await axios.delete(`/api/ans/delete/${ano}`);
+  } catch (error) {
+    console.error('삭제에 실패했습니다.', error);
+    throw error;
+  }
+};
+

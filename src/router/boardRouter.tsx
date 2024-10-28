@@ -1,9 +1,9 @@
 import { lazy, Suspense } from 'react';
-import SuspenseLoader from '../../../tripwhiz/src/components/SuspenseLoader';
+import SuspenseLoader from '../components/SuspenseLoader';
 import { Navigate } from 'react-router-dom';
-import BoardListPage from '../../../tripwhiz/src/board/pages/BoardListPage';
-import BoardReadPage from '../../../tripwhiz/src/board/pages/BoardReadPage';
-import BoardAddPage from '../../../tripwhiz/src/board/pages/BoardAddPage';
+import BoardListPage from '../board/pages/BoardListPage';
+import BoardReadPage from '../board/pages/BoardReadPage';
+import BoardAddPage from '../board/pages/BoardAddPage';
 import { RouteObject } from 'react-router';
 
 const Loader = (Component) => (props) =>
@@ -14,15 +14,15 @@ const Loader = (Component) => (props) =>
   );
 
 const BoardList = Loader(
-  lazy(() => import('../../../tripwhiz/src/board/pages/BoardListPage'))
+  lazy(() => import('../board/pages/BoardListPage'))
 );
 
 const BoardRead = Loader(
-  lazy(() => import('../../../tripwhiz/src/board/pages/BoardReadPage'))
+  lazy(() => import('../board/pages/BoardReadPage'))
 );
 
 const BoardAdd = Loader(
-  lazy(() => import('../../../tripwhiz/src/board/pages/BoardAddPage'))
+  lazy(() => import('../board/pages/BoardAddPage'))
 );
 
 const boaRouter: RouteObject[] = [

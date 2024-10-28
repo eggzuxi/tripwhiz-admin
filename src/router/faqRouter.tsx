@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import SuspenseLoader from '../../../tripwhiz/src/components/SuspenseLoader';
+import SuspenseLoader from '../components/SuspenseLoader';
 import { Navigate } from 'react-router-dom';
 import { RouteObject } from 'react-router';
 
@@ -11,15 +11,15 @@ const Loader = (Component) => (props) =>
   );
 
 const FaQList = Loader(
-  lazy(() => import('../../../tripwhiz/src/faq/pages/FaqListPage'))
+  lazy(() => import('../faq/pages/FaqListPage'))
 );
 
 const FaQAdd = Loader(
-  lazy(() => import('../../../tripwhiz/src/faq/pages/FaqAddPage'))
+  lazy(() => import('../faq/pages/FaqAddPage'))
 );
 
 const FaQModi = Loader(
-  lazy(() => import('../../../tripwhiz/src/faq/pages/FaqModifyPage'))
+  lazy(() => import('../faq/pages/FaqModifyPage'))
 );
 
 const faqRouter: RouteObject[] = [

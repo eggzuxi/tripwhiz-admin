@@ -1,14 +1,6 @@
 import { useContext } from 'react';
 
-import {
-  ListSubheader,
-  alpha,
-  Box,
-  List,
-  styled,
-  Button,
-  ListItem
-} from '@mui/material';
+import { ListSubheader, alpha, Box, List, styled, Button, ListItem } from '@mui/material';
 import { NavLink as RouterLink } from 'react-router-dom';
 import { SidebarContext } from 'src/contexts/SidebarContext';
 

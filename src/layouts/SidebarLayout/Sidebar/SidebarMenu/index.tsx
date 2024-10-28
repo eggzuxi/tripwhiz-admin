@@ -242,15 +242,33 @@ function SidebarMenu() {
         >
           <SubMenuWrapper>
             <List component="div">
-              <ListItem component="div">
+              <ListItem component="div" sx={{ flexDirection: 'column' }}>
                 <Button
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
-                  to="/management/transactions"
+                  to="/boa/list"
                   startIcon={<TableChartTwoToneIcon />}
                 >
-                  Transactions List
+                  BOARD
+                </Button>
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
+                  to="/qna/list"
+                  startIcon={<TableChartTwoToneIcon />}
+                >
+                  Q&A
+                </Button>
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
+                  to="/boa/list"
+                  startIcon={<TableChartTwoToneIcon />}
+                >
+                  FAQ
                 </Button>
               </ListItem>
             </List>

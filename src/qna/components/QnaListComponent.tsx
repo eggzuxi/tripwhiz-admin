@@ -103,7 +103,7 @@ function QnaListComponent() {
   const filteredQuestions = applyFilters(questions, filterStatus, filterCategory);
   console.log("최종 필터링된 질문들: ", filteredQuestions);
 // 카테고리 필터 변경 핸들러
-  const changeCategory = (category: string) => {
+  const changeCategory = (category: QnaCategory) => {
     setFilterCategory(category);
   };
   // 질문 클릭 시 상세 페이지로 이동하는 함수_SA
@@ -118,9 +118,9 @@ function QnaListComponent() {
         title={
           <Box display="flex" alignItems="center" className="text-gray-500 space-x-4">
             {['APP', '환불', '픽업', '매장', '영수증'].map((category, index) => (
-              <>
+              <span key={category}>
                 <span
-                  onClick={() => changeCategory(category)}
+                  onClick={() => changeCategory(category as QnaCategory)}
                   className="cursor-pointer text-gray-500 hover:underline"
                 >
                   {category}
@@ -128,7 +128,7 @@ function QnaListComponent() {
                 {index < 4 && (
                   <span className="text-gray-400 mx-10">|</span>
                 )}
-              </>
+              </span>
             ))}
           </Box>
         }

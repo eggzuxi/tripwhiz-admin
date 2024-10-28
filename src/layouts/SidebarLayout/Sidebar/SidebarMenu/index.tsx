@@ -265,7 +265,7 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
-                  to="/boa/list"
+                  to="/faq/list"
                   startIcon={<TableChartTwoToneIcon />}
                 >
                   FAQ

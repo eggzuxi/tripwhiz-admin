@@ -1,7 +1,11 @@
 import axios from 'axios';
 import { IFaq } from '../../../tripwhiz-admin/src/types/faq';
 
-const host = 'http://10.10.10.158:8080/api/faq';
+// main
+// const host = 'http://10.10.10.158:8080/api/faq';
+
+// localhost
+const host = 'http://localhost:8080/api/faq';
 
 // FAQ 리스트를 가져오는 함수 (페이지네이션 및 카테고리 포함)
 export const getFaqList = (page: number, size: number, category?: string): Promise<{ dtoList: IFaq[], totalCount: number }> => {

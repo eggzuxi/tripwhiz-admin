@@ -1,7 +1,11 @@
 import { IBoard } from '../types/board';
 import axios from 'axios';
 
-const host = 'http://10.10.10.158:8080/api/boa';
+// main
+// const host = 'http://10.10.10.158:8080/api/boa';
+
+// localhost
+const host = 'http://localhost:8080/api/boa';
 
 // 게시글 생성
 export const createBoard = async (board: IBoard): Promise<number> => {

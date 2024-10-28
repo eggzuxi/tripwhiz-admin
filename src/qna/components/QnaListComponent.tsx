@@ -116,7 +116,7 @@ function QnaListComponent() {
       {/*헤더*/}
       <CardHeader
         title={
-          <Box display="flex" alignItems="center" className="text-gray-500 space-x-4">
+          <Box sx={{color: 'gray', display: 'flex', justifyContent: 'center', gap: 2}}>
             {['APP', '환불', '픽업', '매장', '영수증'].map((category, index) => (
               <span key={category}>
                 <span
@@ -126,7 +126,7 @@ function QnaListComponent() {
                   {category}
                 </span>
                 {index < 4 && (
-                  <span className="text-gray-400 mx-10">|</span>
+                  <span className="text-gray-400 mx-10">|   </span>
                 )}
               </span>
             ))}

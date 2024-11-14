@@ -2,7 +2,7 @@ import axios from 'axios';
 import { IQuestion } from '../../src/types/question';
 import { IAnswer } from '../../src/types/answer';
 
-const host = 'http://10.10.10.158:8080/api/que';
+const host = 'http://localhost/api/que';
 
 
 //응답 데이터 타입 정의_SY

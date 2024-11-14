@@ -6,7 +6,9 @@ import SuspenseLoader from '../components/SuspenseLoader';
 import qnaRouter from './qnaRouter';
 import faqRouter from './faqRouter';
 import boaRouter from './boardRouter';
+import productRouter from './productRouter';
 import SidebarLayout from '../layouts/SidebarLayout';
+
 
 const Loader = (Component) => (props) =>
   (
@@ -47,7 +49,8 @@ const mainRouter: RouteObject[] = [
       },
       ...qnaRouter,
       ...faqRouter,
-      ...boaRouter
+      ...boaRouter,
+      ...productRouter
     ]
   },
   // {

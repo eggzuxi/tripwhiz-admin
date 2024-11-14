@@ -248,6 +248,15 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
+                  to="/product/list"
+                  startIcon={<TableChartTwoToneIcon />}
+                >
+                  Product
+                </Button>
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
                   to="/qna/list"
                   startIcon={<TableChartTwoToneIcon />}
                 >

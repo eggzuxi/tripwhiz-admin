@@ -4,7 +4,7 @@ import { Box, Card, CardContent, Typography, Button, TextField } from '@mui/mate
 import { useParams, useNavigate } from 'react-router-dom';
 import { updateProduct, deleteProduct } from '../../api/productAPI';  // 수정, 삭제 API
 
-const ProductDetail = () => {
+const ProductReadComponent = () => {
   const { pno } = useParams<{ pno: string }>();  // URL에서 상품 번호 추출
   const navigate = useNavigate();
   const [product, setProduct] = useState<any>(null);  // 상품 데이터 저장
@@ -122,7 +122,7 @@ const ProductDetail = () => {
                 하위 카테고리 ID: {product.subCategoryScno}
               </Typography>
               <Typography variant="body2" color="textSecondary" gutterBottom>
-                테마 카테고리: {product.themeCategory?.name}
+                테마 카테고리: {product.themeCategory}
               </Typography>
               <Button variant="outlined" color="primary" onClick={() => setIsEditing(true)} sx={{ mt: 2 }}>
                 수정
@@ -133,13 +133,17 @@ const ProductDetail = () => {
             </Box>
           )}
 
-          <Button variant="contained" color="secondary" onClick={() => navigate('/admin/product/list')} sx={{ mt: 2 }}>
+          <Button variant="contained" color="secondary" onClick={() => navigate(-1)} sx={{ mt: 2 }}>
             목록으로 돌아가기
           </Button>
+
+          {/*<Button variant="contained" color="secondary" onClick={() => navigate('/admin/product/list')} sx={{ mt: 2 }}>*/}
+          {/*  목록으로 돌아가기*/}
+          {/*</Button>*/}
         </CardContent>
       </Card>
     </Box>
   );
 };
 
-export default ProductDetail;
+export default ProductReadComponent;

@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-import { Box, Card, CardContent, Typography, Button, TextField } from '@mui/material';
-import { useParams, useNavigate } from 'react-router-dom';
-import { updateProduct, deleteProduct } from '../../api/productAPI';  // 수정, 삭제 API
 import { getCategories, getOne, getSubCategories } from '../../api/productAPI';  // API 불러오기
 import {
   Box,

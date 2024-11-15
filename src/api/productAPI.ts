@@ -3,14 +3,14 @@ import axios from "axios";
 const host ='http://10.10.10.225:8080/api/product';
 // const host ='http://localhost:8080/api/product';
 
-// const header = {
-//     headers: {
-//         'Content-Type': 'multipart/form-data', // 파일 전송 형식 지정
-//     }
-// }
+const header = {
+    headers: {
+        'Content-Type': 'multipart/form-data', // 파일 전송 형식 지정
+    }
+}
 
 export const getList = async (page: number) => {
-  
+
   try {
     const res = await axios.get(`${host}/list?page=${page}`);
     console.log('API Response for getList:', res.data); // 전체 응답을 콘솔에 출력

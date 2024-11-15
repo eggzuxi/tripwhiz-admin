@@ -7,6 +7,6 @@ export interface IProduct {
   category: string,
   subcategory: string,
   themecategory: string,
-  fileName?: string,
+  fileUrl?: string,
   delflag: boolean
 }

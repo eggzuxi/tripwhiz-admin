@@ -42,6 +42,7 @@ export const deleteProduct = async (pno: number) => {
   return res.data;
 };
 
+
 // api/categoryAPI.ts
 export const getCategories = async () => {
   try {
@@ -76,4 +77,3 @@ export const postAdd = async (productData: any) => {
     throw error;
   }
 };
-

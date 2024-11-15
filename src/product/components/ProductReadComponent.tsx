@@ -36,7 +36,6 @@ const ProductReadComponent = () => {
         const productData = await getOne(Number(pno));
         setProduct(productData);
 
-
         // 상위 카테고리 목록 불러오기
         const categoryData = await getCategories();
         setCategories(categoryData);
@@ -46,6 +45,7 @@ const ProductReadComponent = () => {
         setThemeCategories(themeCategoryData);
       } catch (error) {
         console.error('상품 정보를 불러오는 데 실패했습니다:', error);
+
       }
     };
 
@@ -85,7 +85,6 @@ const ProductReadComponent = () => {
     }));
   };
 
-
   // 상품 정보 수정 처리
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -102,7 +101,9 @@ const ProductReadComponent = () => {
       setIsEditing(false);  // 수정 모드 종료
       setProduct(updatedProduct);  // 수정된 데이터로 상품 정보 갱신
     } catch (error) {
-      console.error('상품 수정에 실패했습니다:', error);
+      
+      console.error("상품 수정에 실패했습니다:", error);
+
     }
   };
 
@@ -112,7 +113,9 @@ const ProductReadComponent = () => {
       await deleteProduct(Number(pno));  // 상품 삭제 요청
       navigate('/admin/product/list');  // 삭제 후 상품 목록 페이지로 이동
     } catch (error) {
+
       console.error('상품 삭제에 실패했습니다:', error);
+
     }
   };
 
@@ -124,17 +127,15 @@ const ProductReadComponent = () => {
     <Box display="flex" justifyContent="center" alignItems="flex-start" height="100%" bgcolor="#f5f5f5" sx={{ pb: 8 }}>
       <Card sx={{ width: '80%', p: 4 }}>
         <CardContent>
-          <Typography variant="h3" component="div" gutterBottom>
+          <Typography variant="h3" component="div" textAlign="center" gutterBottom>
             {product.pname}
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            가격: {product.price} 원
           </Typography>
           <Typography variant="h6" color="textSecondary" gutterBottom>
             {product.pdesc}
           </Typography>
-
-
+          <Typography variant="body1" gutterBottom>
+            가격: {product.price} 원
+          </Typography>
           {/* 상품 수정 폼 */}
           {isEditing ? (
             <Box>
@@ -165,6 +166,7 @@ const ProductReadComponent = () => {
                 margin="normal"
                 variant="outlined"
               />
+
               <FormControl fullWidth margin="normal">
                 <InputLabel>상위 카테고리</InputLabel>
                 <Select
@@ -212,6 +214,7 @@ const ProductReadComponent = () => {
                   ))}
                 </Select>
               </FormControl>
+
               <Button variant="contained" color="primary" onClick={handleUpdate} sx={{ mt: 2 }}>
                 수정 완료
               </Button>

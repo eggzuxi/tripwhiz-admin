@@ -1,8 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { getOne } from '../../api/productAPI';  // API 불러오기
+
 import { Box, Card, CardContent, Typography, Button, TextField } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { updateProduct, deleteProduct } from '../../api/productAPI';  // 수정, 삭제 API
+import { getCategories, getOne, getSubCategories } from '../../api/productAPI';  // API 불러오기
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  TextField,
+  FormControl,
+  Select,
+  InputLabel,
+  SelectChangeEvent
+} from '@mui/material';
+import { useParams, useNavigate } from 'react-router-dom';
+import { updateProduct, deleteProduct } from '../../api/productAPI';
+import MenuItem from '@mui/material/MenuItem';
+import axios from 'axios';  // 수정, 삭제 API
 
 const ProductReadComponent = () => {
   const { pno } = useParams<{ pno: string }>();  // URL에서 상품 번호 추출
@@ -11,29 +28,73 @@ const ProductReadComponent = () => {
   const [updatedProduct, setUpdatedProduct] = useState<any>(null);  // 수정된 상품 데이터 저장
   const [isEditing, setIsEditing] = useState(false);  // 수정 모드 활성화 여부
 
+  const [categories, setCategories] = useState<any[]>([]);  // 상위 카테고리 목록
+  const [subCategories, setSubCategories] = useState<any[]>([]);  // 하위 카테고리 목록
+  const [themeCategories, setThemeCategories] = useState<any[]>([]);  // 테마 카테고리 목록
+
+
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchProductAndCategories = async () => {
       try {
         // 상품 상세 정보 불러오기
         const productData = await getOne(Number(pno));
         setProduct(productData);
-        setUpdatedProduct(productData); // 수정 모드에서는 기본값으로 상품 데이터 사용
+
+        // 상위 카테고리 목록 불러오기
+        const categoryData = await getCategories();
+        setCategories(categoryData);
+
+        // 테마 카테고리 목록 불러오기
+        const themeCategoryData = await getThemeCategories();
+        setThemeCategories(themeCategoryData);
       } catch (error) {
-        console.error("상품 정보를 불러오는 데 실패했습니다:", error);
+        console.error('상품 정보를 불러오는 데 실패했습니다:', error);
+
       }
     };
 
     if (pno) {
-      fetchProduct();
+      fetchProductAndCategories();
     }
   }, [pno]);
+
+
+  const getThemeCategories = async () => {
+    try {
+      const response = await axios.get('/api/theme-categories');  // 백엔드 API 엔드포인트
+      return response.data;
+    } catch (error) {
+      console.error('테마 카테고리 데이터를 가져오는 데 실패했습니다:', error);
+      return [];
+    }
+  };
+
+  const handleCategoryChange = async (event: SelectChangeEvent<unknown>) => {
+    const categoryId = event.target.value as number;
+    setUpdatedProduct((prev: any) => ({
+      ...prev,
+      category: categoryId
+    }));
+
+    // 하위 카테고리 업데이트
+    const subCategoryData = await getSubCategories(categoryId);
+    setSubCategories(subCategoryData);
+  };
+
+  const handleThemeCategoryChange = (event: SelectChangeEvent<any>) => {
+    const selectedValue = event.target.value;
+    setUpdatedProduct((prevState) => ({
+      ...prevState,
+      themecategory: selectedValue,
+    }));
+  };
 
   // 상품 정보 수정 처리
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUpdatedProduct((prev: any) => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
   };
 
@@ -44,7 +105,9 @@ const ProductReadComponent = () => {
       setIsEditing(false);  // 수정 모드 종료
       setProduct(updatedProduct);  // 수정된 데이터로 상품 정보 갱신
     } catch (error) {
+      
       console.error("상품 수정에 실패했습니다:", error);
+
     }
   };
 
@@ -54,7 +117,9 @@ const ProductReadComponent = () => {
       await deleteProduct(Number(pno));  // 상품 삭제 요청
       navigate('/admin/product/list');  // 삭제 후 상품 목록 페이지로 이동
     } catch (error) {
-      console.error("상품 삭제에 실패했습니다:", error);
+
+      console.error('상품 삭제에 실패했습니다:', error);
+
     }
   };
 
@@ -75,7 +140,6 @@ const ProductReadComponent = () => {
           <Typography variant="body1" gutterBottom>
             가격: {product.price} 원
           </Typography>
-
           {/* 상품 수정 폼 */}
           {isEditing ? (
             <Box>
@@ -106,6 +170,55 @@ const ProductReadComponent = () => {
                 margin="normal"
                 variant="outlined"
               />
+
+              <FormControl fullWidth margin="normal">
+                <InputLabel>상위 카테고리</InputLabel>
+                <Select
+                  value={updatedProduct.category || ''}
+                  onChange={handleCategoryChange}
+                  label="상위 카테고리"
+                  name="category"
+                >
+                  {categories.map((category) => (
+                    <MenuItem key={category.cno} value={category.cno}>
+                      {category.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth margin="normal">
+                <InputLabel>하위 카테고리</InputLabel>
+                <Select
+                  value={updatedProduct.subcategory || ''}
+                  onChange={handleChange}
+                  label="하위 카테고리"
+                  name="subcategory"
+                >
+                  {subCategories.map((subCategory) => (
+                    <MenuItem key={subCategory.scno} value={subCategory.scno}>
+                      {subCategory.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* 테마 카테고리 드롭다운 */}
+              <FormControl fullWidth margin="normal" variant="outlined">
+                <InputLabel>테마 카테고리</InputLabel>
+                <Select
+                  value={updatedProduct.themecategory}
+                  onChange={handleThemeCategoryChange}
+                  label="테마 카테고리"
+                >
+                  {themeCategories.map((themeCategory) => (
+                    <MenuItem key={themeCategory.id} value={themeCategory.id}>
+                      {themeCategory.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
               <Button variant="contained" color="primary" onClick={handleUpdate} sx={{ mt: 2 }}>
                 수정 완료
               </Button>

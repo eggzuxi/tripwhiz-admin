@@ -11,6 +11,7 @@ export interface IProduct {
   category: string, //상위 카테고리
   subcategory: string, //하위 카테고리
   themecategory: string, //테마 카테고리
+  fileUrl?: string,
   delflag: boolean //삭제 플래그
   uploadFileNames: IProductImage[]; // 기존 IProductImage 객체 배열
 }

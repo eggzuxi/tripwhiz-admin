@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const host ='http://10.10.10.225:8080/api/product';
-// const host ='http://localhost:8080/api/product';
+// const host ='http://10.10.10.225:8080/api/product';
+const host ='http://localhost:8080/api/product';
 
 const header = {
     headers: {
@@ -45,17 +45,20 @@ export const deleteProduct = async (pno: number) => {
 // api/categoryAPI.ts
 export const getCategories = async () => {
   try {
-    const response = await fetch('/api/categories'); // 카테고리 API 엔드포인트
-    const data = await response.json();
-    return data;
+    const url = `${host}/list/categories`;
+    console.log('Request URL:', url);  // URL 확인
+    const response = await axios.get(url);
+    return response.data;
   } catch (error) {
-    console.error('상위 카테고리 로드 실패', error);
+    throw new Error('카테고리 데이터를 불러오는 데 실패했습니다');
   }
 };
 
-export const getSubCategories = async (categoryId: number) => {
+
+
+export const getSubCategories = async (cno: number) => {
   try {
-    const response = await fetch(`/api/subcategories/${categoryId}`); // 하위 카테고리 API 엔드포인트
+    const response = await fetch(`${host}/list/subcategory`); // 하위 카테고리 API 엔드포인트
     const data = await response.json();
     return data;
   } catch (error) {
@@ -65,7 +68,7 @@ export const getSubCategories = async (categoryId: number) => {
 
 export const postAdd = async (formData: FormData) => {
   try {
-    const res = await axios.post(`${host}/add`, formData, header);
+    const res = await axios.post(`${host}/add`, formData);
     console.log(res.data)
     return res.data;
   } catch (error) {

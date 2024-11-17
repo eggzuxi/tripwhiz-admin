@@ -7,7 +7,7 @@ import { IFaq } from '../../../../tripwhiz-admin/src/types/faq';
 const initState = { fno: undefined, question: '', answer: '' };
 
 function FaqModifyComponent() {
-  const [faq, setFaq] = useState<IFaq>({ ...initState });
+  const [faq, setFaq] = useState<IFaq>();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { fno } = useParams<{ fno: string }>();

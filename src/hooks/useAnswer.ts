@@ -7,6 +7,7 @@ const initialState: IAnswer = {
     qno: 0,
     title: '',
     writer: '',
+    category: 'APP',
     createdDate: '',
     qcontent: '',
     status: '답변대기',

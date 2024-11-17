@@ -1,5 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Accordion, AccordionSummary, AccordionDetails, Typography, Card, CardHeader, Divider, Box, CircularProgress, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  Card,
+  CardHeader,
+  Divider,
+  Box,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Button,
+  SelectChangeEvent
+} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -41,7 +57,7 @@ function FaqListComponent() {
     }
   };
 
-  const handleCategoryChange = (e: React.ChangeEvent<{ value: unknown }>) => {
+  const handleCategoryChange = (e: SelectChangeEvent) => {
     setFilterCategory(e.target.value as FaqCategory | '전체');
     setCurrentPage(1);
   };

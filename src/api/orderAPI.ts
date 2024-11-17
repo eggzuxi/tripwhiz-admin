@@ -6,8 +6,12 @@ const host = 'http://localhost:8080/api/order';
 
 // 주문 목록 조회
 export const getOrderList = async (page: number, size: number): Promise<IPageResponse> => {
+
+  const pageValue:number = page || 1
+  const sizeValue:number = size || 10
+
   try {
-    const res = await axios.get<IPageResponse>(`${host}/list`, {
+    const res = await axios.get<IPageResponse>(`${host}/list?page=${pageValue}&size=${sizeValue}`, {
       params: { page, size }, // 페이지 번호와 크기 전달
     });
     console.log('Fetched Order List:', res.data);

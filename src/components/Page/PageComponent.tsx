@@ -1,74 +1,59 @@
-import {ReactElement} from "react";
-import {useSearchParams} from "react-router-dom";
-import { IPageResponse } from '../../types/order';
+import { ReactElement } from "react";
+import { IPageResponse } from "../../types/order";
+import { Box, Button } from "@mui/material";
 
 interface Props {
-  pageResponse:IPageResponse
+  pageResponse: IPageResponse;
 }
 
-const makeArr = (from:number, to:number): number[] => {
-
-  let arr:number[] = []
-  for (let i = from; i <= to ; i++) {
-    arr.push(i)
-  }
-  return arr
-}
-
-function PageComponent({pageResponse}: Props): ReactElement {
-
-  const current: number = pageResponse.number + 1
-  //  (1/10.0) => 0.1 => 1 * 10 => 20
-  const tempLast: number = Math.ceil(current / 10.0) * 10
-  const startPage: number = tempLast - 9
-  const endPage: number = pageResponse.totalPages < tempLast ? pageResponse.totalPages : tempLast;
-  const prev:boolean = startPage !== 1
-  const next:boolean = true
-
-  const pageNums: number[] = makeArr(startPage, endPage)
-
-  const [query,setQuery] = useSearchParams()
+const PageComponent = ({ pageResponse }: Props): ReactElement => {
+  const { current, pageNumList, next, prev } = pageResponse; // 수정된 필드 이름 사용
 
   const changePage = (pageNum: number) => {
-
-    query.set("page", String(pageNum))
-    setQuery(query)
-
-  }
-
-  const lis = pageNums.map(num => <li
-    className='px-4 py-2 text-white bg-blue-500 border border-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300'
-    key={num}
-    onClick={() => changePage(num)}
-  >
-    {num}
-  </li>)
-
+    console.log(`Changing to page: ${pageNum}`);
+    // 페이지 변경 로직 (예: URL 파라미터 또는 상태 변경)
+  };
 
   return (
-    <div>
-      <ul className='flex justify-center items-center space-x-2 mt-6'>
-
-        { prev && <li
-          className='px-4 py-2 text-white bg-blue-500 border border-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300'
-          key={startPage -1}
-          onClick={() => changePage(startPage -1)}
+    <Box display="flex" justifyContent="center" alignItems="center" mt={4}>
+      {/* Prev 버튼 */}
+      {prev && (
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => changePage(current - 1)}
+          sx={{ marginX: 1 }}
         >
           Prev
-        </li>}
+        </Button>
+      )}
 
-        {lis}
-        { next && <li
-          className='px-4 py-2 text-white bg-blue-500 border border-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300'
-          key={endPage +1}
-          onClick={() => changePage(endPage + 1)}
+      {/* 페이지 번호 버튼 */}
+      {pageNumList.map((num) => (
+        <Button
+          key={num}
+          variant={num === current ? "contained" : "outlined"} // 현재 페이지는 강조
+          color={num === current ? "primary" : "inherit"}
+          onClick={() => changePage(num)}
+          sx={{ marginX: 1 }}
+        >
+          {num}
+        </Button>
+      ))}
+
+      {/* Next 버튼 */}
+      {next && (
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => changePage(current + 1)}
+          sx={{ marginX: 1 }}
         >
           Next
-        </li>}
-
-      </ul>
-    </div>
+        </Button>
+      )}
+    </Box>
   );
-}
+};
 
 export default PageComponent;

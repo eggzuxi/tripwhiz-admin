@@ -17,8 +17,6 @@ import useQuestion from '../../hooks/useQuestion';
 import Label from '../../components/Label';
 import { useNavigate } from 'react-router-dom';
 
-
-
 // 상태 레이블을 반환하는 함수
 const getStatusLabel = (status: QuestionStatus): JSX.Element => {
   const statusMap: Record<QuestionStatus, { text: string; color: 'success' | 'warning' }> = {

@@ -1,9 +1,6 @@
 import { lazy, Suspense } from 'react';
 import SuspenseLoader from '../components/SuspenseLoader';
 import { Navigate } from 'react-router-dom';
-import BoardListPage from '../board/pages/BoardListPage';
-import BoardReadPage from '../board/pages/BoardReadPage';
-import BoardAddPage from '../board/pages/BoardAddPage';
 import { RouteObject } from 'react-router';
 
 const Loader = (Component) => (props) =>

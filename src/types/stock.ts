@@ -3,6 +3,7 @@ export interface IStock {
   productId: string;
   productName: string;
   quantity: number;
+  price: number;
 }
 
 // 재고 목록을 반환하는 함수의 타입을 정의

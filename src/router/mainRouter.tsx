@@ -8,6 +8,7 @@ import faqRouter from './faqRouter';
 import boaRouter from './boardRouter';
 import productRouter from './productRouter';
 import SidebarLayout from '../layouts/SidebarLayout';
+import stockRouter from './stockRouter';
 
 
 const Loader = (Component) => (props) =>
@@ -50,7 +51,8 @@ const mainRouter: RouteObject[] = [
       ...qnaRouter,
       ...faqRouter,
       ...boaRouter,
-      ...productRouter
+      ...productRouter,
+      ...stockRouter,
     ]
   },
   // {

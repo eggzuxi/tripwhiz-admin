@@ -16,10 +16,7 @@ export interface IProduct {
   uploadFileNames: IProductImage[]; // 기존 IProductImage 객체 배열
 }
 
-export interface ProductReadDTO {
-  pno: number;      // 상품 번호
-  pname: string;    // 상품 이름
-  pdesc: string;    // 상품 설명
-  price: number;    // 상품 가격
-  images: string[]; // 이미지 URL 리스트
+export interface ICartItem {
+    product: IProduct
+    qty: number
 }

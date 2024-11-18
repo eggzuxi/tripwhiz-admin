@@ -1,10 +1,10 @@
-import { ChangeEvent, useState, useRef } from 'react';
+import { ChangeEvent, useState } from 'react';
+
 import { postAdd } from '../../api/productAPI';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Card, CardContent, CardHeader, Divider, Grid } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
-import { string } from 'prop-types';
 
 const initialState = {
   pname: '',
@@ -12,7 +12,6 @@ const initialState = {
   price: 0,
   categoryCno: 0,
   subCategoryScno: 0,
-  fileUrl: [],
   delflag: false
 };
 
@@ -59,6 +58,10 @@ function ProductAddComponent() {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+
+  // const moveToList = () => {
+  //   navigate('/product/list');
+  // };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

@@ -9,15 +9,15 @@ import { CssBaseline } from '@mui/material';
 import ThemeProvider from './theme/ThemeProvider';
 
 function App() {
-  const content = useRoutes(router);
+    const content = useRoutes(router);
 
-  return (
-    <ThemeProvider>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <CssBaseline />
-        {content}
-      </LocalizationProvider>
-    </ThemeProvider>
-  );
+    return (
+        <ThemeProvider>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <CssBaseline />
+                {content}
+            </LocalizationProvider>
+        </ThemeProvider>
+    );
 }
 export default App;

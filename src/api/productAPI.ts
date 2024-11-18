@@ -1,12 +1,12 @@
 import axios from "axios";
 
-const host ='http://10.10.10.225:8080/api/product';
+const host ='http://localhost:8080/api/product';
 // const host ='http://localhost:8080/api/product';
 
 const header = {
-    headers: {
-        'Content-Type': 'multipart/form-data', // 파일 전송 형식 지정
-    }
+  headers: {
+    'Content-Type': 'multipart/form-data', // 파일 전송 형식 지정
+  }
 }
 
 export const getList = async (page: number) => {
@@ -42,11 +42,13 @@ export const deleteProduct = async (pno: number) => {
   return res.data;
 };
 
+
 // api/categoryAPI.ts
 export const getCategories = async () => {
   try {
     const response = await fetch('/api/categories'); // 카테고리 API 엔드포인트
     const data = await response.json();
+    console.log('API Response for getCategories:', data);
     return data;
   } catch (error) {
     console.error('상위 카테고리 로드 실패', error);
@@ -63,14 +65,15 @@ export const getSubCategories = async (categoryId: number) => {
   }
 };
 
-export const postAdd = async (formData: FormData) => {
+export const postAdd = async (productData: any) => {
   try {
-    const res = await axios.post(`${host}/add`, formData, header);
-    console.log(res.data)
+    const res = await axios.post(`${host}/add`, productData, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    console.log('API Response:', res.data);
     return res.data;
   } catch (error) {
     console.error('Failed to add product:', error);
     throw error;
   }
 };
-

@@ -15,3 +15,8 @@ export interface IProduct {
   delflag: boolean //삭제 플래그
   uploadFileNames: IProductImage[]; // 기존 IProductImage 객체 배열
 }
+
+export interface ICartItem {
+    product: IProduct
+    qty: number
+}

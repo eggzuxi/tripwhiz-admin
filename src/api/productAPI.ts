@@ -55,3 +55,25 @@ export const postAdd = async (productData: any) => {
     throw error;
   }
 };
+
+// api/categoryAPI.ts
+export const getCategories = async () => {
+  try {
+    const response = await fetch('/api/categories'); // 카테고리 API 엔드포인트
+    const data = await response.json();
+    console.log('API Response for getCategories:', data);
+    return data;
+  } catch (error) {
+    console.error('상위 카테고리 로드 실패', error);
+  }
+};
+
+export const getSubCategories = async (categoryId: number) => {
+  try {
+    const response = await fetch(`/api/subcategories/${categoryId}`); // 하위 카테고리 API 엔드포인트
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('하위 카테고리 로드 실패', error);
+  }
+};

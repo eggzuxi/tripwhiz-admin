@@ -1,3 +1,12 @@
+export interface StoreOwner {
+  sno: number;
+  sname: string;
+  id: string;
+  pw: string;
+  tel: string;
+  email: string;
+  delFlag: boolean;
+
 // StoreOwner 타입 정의 (백엔드와 필드명 일치)
 export interface IStoreOwner {
     s_no: number;

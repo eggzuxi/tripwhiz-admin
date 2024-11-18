@@ -8,6 +8,7 @@ import boaRouter from './boardRouter';
 import productRouter from './productRouter';
 import storeOwnerRouter from './storeOwnerRouter';
 import SidebarLayout from '../layouts/SidebarLayout';
+import SpotRouter from './spotRouter';
 
 const Loader = (Component) => (props) =>
     (
@@ -56,6 +57,7 @@ const mainRouter: RouteObject[] = [
       ...faqRouter,
       ...boaRouter,
       ...productRouter,
+      ...SpotRouter,
       ...storeOwnerRouter
     ]
   }

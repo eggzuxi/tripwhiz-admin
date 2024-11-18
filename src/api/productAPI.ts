@@ -4,9 +4,9 @@ const host ='http://localhost:8080/api/product';
 // const host ='http://localhost:8080/api/product';
 
 const header = {
-    headers: {
-        'Content-Type': 'multipart/form-data', // 파일 전송 형식 지정
-    }
+  headers: {
+    'Content-Type': 'multipart/form-data', // 파일 전송 형식 지정
+  }
 }
 
 export const getList = async (page: number) => {
@@ -42,6 +42,7 @@ export const deleteProduct = async (pno: number) => {
   return res.data;
 };
 
+
 // api/categoryAPI.ts
 export const getCategories = async () => {
   try {
@@ -76,4 +77,3 @@ export const postAdd = async (productData: any) => {
     throw error;
   }
 };
-

@@ -4,7 +4,7 @@ function ProductReadPage() {
 
   return (
     <div>
-      <ProductReadComponent/>
+      <ProductReadComponent pno={1}/>
     </div>
   );
 }

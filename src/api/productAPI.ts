@@ -1,4 +1,5 @@
 import axios from "axios";
+import { ProductReadDTO } from '../types/product';
 
 const host ='http://localhost:8080/api/product';
 // const host ='http://localhost:8080/api/product';
@@ -22,13 +23,15 @@ export const getList = async (page: number) => {
 
 };
 
-export const getOne = async (pno: number) => {
-
-  const res = await axios.get(`${host}/read/${pno}`)
-
-  return res.data
-
-}
+export const getOne = async (pno: number): Promise<ProductReadDTO | null> => {
+  try {
+    const res = await axios.get<ProductReadDTO>(`${host}/read/${pno}`);
+    return res.data;
+  } catch (error: any) {
+    console.error("Error fetching product details:", error.message || error);
+    return null;
+  }
+};
 
 // 상품 수정 API
 export const updateProduct = async (product: any) => {

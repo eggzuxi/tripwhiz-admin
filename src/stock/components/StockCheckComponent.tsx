@@ -1,24 +1,14 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import {
-  Card,
-  CardHeader,
-  Box,
-  Divider,
-  Table,
-  TableHead,
-  TableCell,
-  TableBody,
-  TableRow,
-  TableContainer,
-  Typography,
-  Button
-} from '@mui/material';
+import { Card, CardHeader, Box, Divider, Table, TableHead, TableCell, TableBody, TableRow, TableContainer, Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import PageComponent from '../../common/PageComponent';
+import usePage from '../../hooks/usePage';
 
 const StockCheckComponent = () => {
   const [stocks, setStocks] = useState([]);
   const navigate = useNavigate();
+  const { pageResponse } = usePage();
 
   // 발주 페이지로 이동하는 함수
   const goToOrderPage = () => {
@@ -45,7 +35,7 @@ const StockCheckComponent = () => {
             <Typography variant="h6"
                         style={{ fontWeight: 'bold', fontSize: '25px', color: '#003366' }}
             >재고 목록</Typography>
-            <Button variant="contained" color="primary" onClick={goToOrderPage}> // 발주 페이지로 이동
+            <Button variant="contained" color="primary" onClick={goToOrderPage}>
               발주하기
             </Button>
           </Box>
@@ -108,6 +98,7 @@ const StockCheckComponent = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <PageComponent pageResponse={pageResponse}  ></PageComponent>
     </Card>
   );
 };

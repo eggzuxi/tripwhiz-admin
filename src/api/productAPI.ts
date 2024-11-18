@@ -1,5 +1,4 @@
 import axios from "axios";
-import { ProductReadDTO } from '../types/product';
 
 // const host ='http://10.10.10.225:8080/api/product';
 const host ='http://localhost:8080/api/product';

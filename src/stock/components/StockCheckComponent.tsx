@@ -1,12 +1,34 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Card, CardHeader, Box, Divider, Table, TableHead, TableCell, TableBody, TableRow, TableContainer, Typography, Button } from '@mui/material';
+import {
+  Card,
+  CardHeader,
+  Box,
+  Divider,
+  Table,
+  TableHead,
+  TableCell,
+  TableBody,
+  TableRow,
+  TableContainer,
+  Typography,
+  Button
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import PageComponent from '../../common/PageComponent';
 import usePage from '../../hooks/usePage';
 
+// Stock 데이터 타입 정의
+interface Stock {
+  productId: string;
+  pno: number;
+  pname: string;
+  price: number | null;
+  quantity: number;
+}
+
 const StockCheckComponent = () => {
-  const [stocks, setStocks] = useState([]);
+  const [stocks, setStocks] = useState<Stock[]>([]); // Stock 타입 배열
   const navigate = useNavigate();
   const { pageResponse } = usePage();
 
@@ -17,9 +39,14 @@ const StockCheckComponent = () => {
 
   useEffect(() => {
     // API를 호출하여 재고 목록 조회
-    axios.get('/api/stock')
+    axios
+      .get('/api/stock')
       .then((response) => {
-        setStocks(response.data); // 서버에서 받은 재고 목록 데이터
+        if (Array.isArray(response.data)) {
+          setStocks(response.data); // 서버에서 받은 재고 목록 데이터
+        } else {
+          console.error('API 응답이 배열 형태가 아닙니다:', response.data);
+        }
       })
       .catch((error) => {
         console.error('재고 목록을 불러오는 데 실패했습니다:', error);
@@ -32,9 +59,12 @@ const StockCheckComponent = () => {
       <CardHeader
         title={
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6"
-                        style={{ fontWeight: 'bold', fontSize: '25px', color: '#003366' }}
-            >재고 목록</Typography>
+            <Typography
+              variant="h6"
+              style={{ fontWeight: 'bold', fontSize: '25px', color: '#003366' }}
+            >
+              재고 목록
+            </Typography>
             <Button variant="contained" color="primary" onClick={goToOrderPage}>
               발주하기
             </Button>
@@ -60,14 +90,15 @@ const StockCheckComponent = () => {
           <TableBody>
             {/* stocks 배열을 순회하며 테이블의 각 행을 생성 */}
             {stocks.length > 0 ? (
-              stocks.map((stock) => {
-
-                const formattedPrice = typeof stock.price === 'number'
-                  ? stock.price.toLocaleString() // 숫자일 경우 포맷팅
-                  : '가격 정보 없음'; // 아니면 '가격 정보 없음' 표시
+              stocks.map((stock, index) => {
+                // 가격 포맷팅
+                const formattedPrice =
+                  typeof stock.price === 'number'
+                    ? stock.price.toLocaleString() // 숫자일 경우 포맷팅
+                    : '가격 정보 없음'; // 아니면 '가격 정보 없음' 표시
 
                 return (
-                  <TableRow key={stock.productId}>
+                  <TableRow key={stock.productId || `stock-${index}`}>
                     {/* 번호 */}
                     <TableCell align="center">{stock.pno}</TableCell>
 
@@ -79,9 +110,7 @@ const StockCheckComponent = () => {
                     </TableCell>
 
                     {/* 가격 */}
-                    <TableCell align="center">
-                      {formattedPrice} 원
-                    </TableCell>
+                    <TableCell align="center">{formattedPrice} 원</TableCell>
 
                     {/* 현재 수량 */}
                     <TableCell align="center">{stock.quantity}</TableCell>
@@ -90,7 +119,7 @@ const StockCheckComponent = () => {
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={4} align="center">
+                <TableCell colSpan={4} align="center" style={{ padding: '20px 0', fontStyle: 'italic' }}>
                   재고가 없습니다.
                 </TableCell>
               </TableRow>
@@ -98,9 +127,12 @@ const StockCheckComponent = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      <PageComponent pageResponse={pageResponse}  ></PageComponent>
+
+      {/* 페이지 컴포넌트 */}
+      <PageComponent pageResponse={pageResponse}></PageComponent>
     </Card>
-  );
+  )
 };
+
 
 export default StockCheckComponent;

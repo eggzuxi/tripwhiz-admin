@@ -23,7 +23,9 @@ function PageComponent({pageResponse}: Props): ReactElement {
     const startPage: number = tempLast - 9
     const endPage: number = pageResponse.totalPages < tempLast ? pageResponse.totalPages : tempLast;
     const prev:boolean = startPage !== 1
-    const next:boolean = true
+    // const next:boolean = true
+    const next: boolean = endPage < pageResponse.totalPages;
+
 
     const pageNums: number[] = makeArr(startPage, endPage)
 
@@ -58,6 +60,7 @@ function PageComponent({pageResponse}: Props): ReactElement {
                 </li>}
 
                 {lis}
+
                 { next && <li
                     className='px-4 py-2 text-white bg-blue-500 border border-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300'
                     key={endPage +1}

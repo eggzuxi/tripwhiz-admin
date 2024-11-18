@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+
+import { getCategories, getOne, getSubCategories } from '../../api/productAPI';  // API 불러오기
 import {
   Box,
   Card,
@@ -9,15 +11,15 @@ import {
   FormControl,
   Select,
   InputLabel,
-  SelectChangeEvent,
-  MenuItem,
+  SelectChangeEvent
 } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { updateProduct, deleteProduct, getOne, getCategories, getSubCategories } from '../../api/productAPI';
-import axios from 'axios';
+import { updateProduct, deleteProduct } from '../../api/productAPI';
+import MenuItem from '@mui/material/MenuItem';
+import axios from 'axios';  // 수정, 삭제 API
 
 const ProductReadComponent = () => {
-  const { pno } = useParams<{ pno: string }>(); // 상품 번호 추출
+  const { pno } = useParams<{ pno: string }>();  // URL에서 상품 번호 추출
   const navigate = useNavigate();
   const [product, setProduct] = useState<any>(null);  // 상품 데이터 저장
   const [updatedProduct, setUpdatedProduct] = useState<any>(null);  // 수정된 상품 데이터 저장
@@ -27,57 +29,48 @@ const ProductReadComponent = () => {
   const [subCategories, setSubCategories] = useState<any[]>([]);  // 하위 카테고리 목록
   const [themeCategories, setThemeCategories] = useState<any[]>([]);  // 테마 카테고리 목록
 
-  useEffect(() => {
-    // 상품 데이터 가져오기
-    const fetchProduct = async () => {
-      try {
-        const response = await getOne(Number(pno));
-        setProduct(response);
-        setUpdatedProduct(response);  // 수정된 상품 정보 초기화
-      } catch (error) {
-        console.error('상품 정보를 불러오는 데 실패했습니다:', error);
-      }
-    };
-    fetchProduct();
-  }, [pno]);
 
   useEffect(() => {
-    // 카테고리 및 테마 카테고리 데이터 가져오기
-    const fetchCategories = async () => {
+    const fetchProductAndCategories = async () => {
       try {
+        // 상품 상세 정보 불러오기
+        const productData = await getOne(Number(pno));
+        setProduct(productData);
+
+        // 상위 카테고리 목록 불러오기
         const categoryData = await getCategories();
         setCategories(categoryData);
+
+        // 테마 카테고리 목록 불러오기
+        const themeCategoryData = await getThemeCategories();
+        setThemeCategories(themeCategoryData);
       } catch (error) {
-        console.error('카테고리 정보를 불러오는 데 실패했습니다:', error);
+        console.error('상품 정보를 불러오는 데 실패했습니다:', error);
+
       }
     };
 
-    // 테마 카테고리 데이터 가져오기
-    const fetchThemeCategories = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/api/product/list/theme', {
-          params: {
-            themeCategory: 'themeCategory',  // 실제 테마 카테고리 값으로 바꿔주세요
-            page: 1,                        // PageRequestDTO의 page 파라미터 (필요 시)
-            size: 10                        // PageRequestDTO의 size 파라미터 (필요 시)
-          }
-        });
-        setThemeCategories(response.data);  // 응답 데이터로 상태 업데이트
-      } catch (error) {
-        console.error('테마 카테고리 데이터를 가져오는 데 실패했습니다:', error);
-      }
-    };
+    if (pno) {
+      fetchProductAndCategories();
+    }
+  }, [pno]);
 
 
-    fetchCategories();
-    fetchThemeCategories();
-  }, []);
+  const getThemeCategories = async () => {
+    try {
+      const response = await axios.get('/api/theme-categories');  // 백엔드 API 엔드포인트
+      return response.data;
+    } catch (error) {
+      console.error('테마 카테고리 데이터를 가져오는 데 실패했습니다:', error);
+      return [];
+    }
+  };
 
   const handleCategoryChange = async (event: SelectChangeEvent<unknown>) => {
     const categoryId = event.target.value as number;
     setUpdatedProduct((prev: any) => ({
       ...prev,
-      category: categoryId,
+      category: categoryId
     }));
 
     // 하위 카테고리 업데이트
@@ -93,30 +86,37 @@ const ProductReadComponent = () => {
     }));
   };
 
+  // 상품 정보 수정 처리
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUpdatedProduct((prev: any) => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
   };
 
+  // 상품 수정 처리 함수
   const handleUpdate = async () => {
     try {
-      await updateProduct(updatedProduct);
-      setIsEditing(false);
-      setProduct(updatedProduct);
+      await updateProduct(updatedProduct);  // 수정된 상품 정보를 API로 전송
+      setIsEditing(false);  // 수정 모드 종료
+      setProduct(updatedProduct);  // 수정된 데이터로 상품 정보 갱신
     } catch (error) {
-      console.error('상품 수정에 실패했습니다:', error);
+      
+      console.error("상품 수정에 실패했습니다:", error);
+
     }
   };
 
+  // 상품 삭제 처리 함수
   const handleDelete = async () => {
     try {
-      await deleteProduct(Number(pno));
-      navigate('/admin/product/list');
+      await deleteProduct(Number(pno));  // 상품 삭제 요청
+      navigate('/admin/product/list');  // 삭제 후 상품 목록 페이지로 이동
     } catch (error) {
+
       console.error('상품 삭제에 실패했습니다:', error);
+
     }
   };
 
@@ -137,7 +137,6 @@ const ProductReadComponent = () => {
           <Typography variant="body1" gutterBottom>
             가격: {product.price} 원
           </Typography>
-
           {/* 상품 수정 폼 */}
           {isEditing ? (
             <Box>
@@ -201,6 +200,7 @@ const ProductReadComponent = () => {
                 </Select>
               </FormControl>
 
+              {/* 테마 카테고리 드롭다운 */}
               <FormControl fullWidth margin="normal" variant="outlined">
                 <InputLabel>테마 카테고리</InputLabel>
                 <Select
@@ -246,6 +246,10 @@ const ProductReadComponent = () => {
           <Button variant="contained" color="secondary" onClick={() => navigate(-1)} sx={{ mt: 2 }}>
             목록으로 돌아가기
           </Button>
+
+          {/*<Button variant="contained" color="secondary" onClick={() => navigate('/admin/product/list')} sx={{ mt: 2 }}>*/}
+          {/*  목록으로 돌아가기*/}
+          {/*</Button>*/}
         </CardContent>
       </Card>
     </Box>

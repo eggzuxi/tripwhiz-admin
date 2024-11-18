@@ -4,10 +4,10 @@ import { Box, Card, CardContent, Typography, TextField, Button, CircularProgress
 import { updateFaq, getFaqById } from '../../../../tripwhiz-admin/src/api/faqAPI';
 import { IFaq } from '../../../../tripwhiz-admin/src/types/faq';
 
-const initState = { fno: undefined, question: '', answer: '' };
+const initState: IFaq = { fno: 0, question: '', answer: '', del_flag: false, view_cnt: 0, category: 'APP'  };
 
 function FaqModifyComponent() {
-  const [faq, setFaq] = useState<IFaq>();
+  const [faq, setFaq] = useState<IFaq>(initState);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { fno } = useParams<{ fno: string }>();

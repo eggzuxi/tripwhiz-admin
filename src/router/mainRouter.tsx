@@ -7,9 +7,11 @@ import qnaRouter from './qnaRouter';
 import faqRouter from './faqRouter';
 import boaRouter from './boardRouter';
 import productRouter from './productRouter';
+import storeOwnerRouter from './storeOwnerRouter';
 import SidebarLayout from '../layouts/SidebarLayout';
+import ordRouter from './ordRouter';
 import stockRouter from './stockRouter';
-
+import SpotRouter from './spotRouter';
 
 const Loader = (Component) => (props) =>
   (
@@ -34,8 +36,14 @@ const Status404 = Loader(
   lazy(() => import('../content/pages/Status/Status404'))
 );
 
+// Authentication
+const Login = Loader(lazy(() => import('../login/pages/LoginPages')));
 
 const mainRouter: RouteObject[] = [
+  {
+    path: '/login',
+    element: <Login />
+  },
   {
     path: '/',
     element: <SidebarLayout />,
@@ -51,28 +59,13 @@ const mainRouter: RouteObject[] = [
       ...qnaRouter,
       ...faqRouter,
       ...boaRouter,
+      ...ordRouter,
       ...productRouter,
       ...stockRouter,
+      ...SpotRouter,
+      ...storeOwnerRouter
     ]
-  },
-  // {
-  //   path: 'dashboards',
-  //   element: <SidebarLayout />,
-  //   children: [
-  //     {
-  //       path: '',
-  //       element: <Navigate to="crypto" replace />
-  //     },
-  //     {
-  //       path: 'crypto',
-  //       element: <Crypto />
-  //     },
-  //     {
-  //       path: 'messenger',
-  //       element: <Messenger />
-  //     }
-  //   ]
-  // }
+  }
 ];
 
 

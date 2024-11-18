@@ -2,7 +2,7 @@ import ProductListComponent from '../components/ProductListComponent';
 
 function ProductListPage() {
   return (
-    <div>
+    <div >
       <ProductListComponent/>
     </div>
   );

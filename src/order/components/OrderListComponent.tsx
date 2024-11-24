@@ -14,8 +14,9 @@ import {
 } from "@mui/material";
 import PageComponent from "../../components/Page/PageComponent";
 import { IOrderList, IPageResponse } from "../../types/order";
-import { getOrderList } from "../../api/orderAPI";
+import { deleteOrders, getOrderList } from '../../api/orderAPI';
 import { useNavigate } from "react-router-dom";
+import Checkbox from '@mui/material/Checkbox';
 
 const initialState: IPageResponse = {
   dtoList: [], // 빈 배열로 초기화
@@ -35,6 +36,7 @@ function OrderListComponent() {
   const [pageResponse, setPageResponse] = useState<IPageResponse>(initialState);
   const [currentPage, setCurrentPage] = useState<number>(1); // 현재 페이지
   const [loading, setLoading] = useState<boolean>(false);
+  const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -56,6 +58,35 @@ function OrderListComponent() {
     navigate(`/ord/read/${ono}`);
   };
 
+  const handleCheckboxChange = (ono: number) => {
+    setSelectedOrders((prev) =>
+      prev.includes(ono) ? prev.filter((id) => id !== ono) : [...prev, ono]
+    );
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedOrders.length === 0) {
+      alert("삭제할 주문을 선택하세요.");
+      return;
+    }
+
+    const confirmDelete = window.confirm("선택된 주문을 삭제하시겠습니까?");
+    if (!confirmDelete) return;
+
+    try {
+      await deleteOrders(selectedOrders); // 선택된 주문 삭제 API 호출
+      setPageResponse((prev) => ({
+        ...prev,
+        dtoList: prev.dtoList.filter((order) => !selectedOrders.includes(order.ono)),
+      })); // UI 업데이트: 삭제된 주문 제거
+      setSelectedOrders([]); // 선택 초기화
+      alert("선택된 주문이 삭제되었습니다.");
+    } catch (error) {
+      console.error("Error deleting selected orders:", error);
+      alert("주문 삭제 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <Box padding={4}>
       <Typography variant="h4" marginBottom={2}>
@@ -69,6 +100,7 @@ function OrderListComponent() {
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell align="center">선택</TableCell>
                 <TableCell align="center">주문 번호</TableCell>
                 <TableCell align="center">회원 번호</TableCell>
                 <TableCell align="center">이름</TableCell>
@@ -77,7 +109,6 @@ function OrderListComponent() {
                 <TableCell align="center">주문일</TableCell>
                 <TableCell align="center">픽업일</TableCell>
                 <TableCell align="center">상태</TableCell>
-                <TableCell align="center">삭제 여부</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -87,10 +118,13 @@ function OrderListComponent() {
                 return (
                   <TableRow
                     key={ono}
-                    hover
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => moveToRead(ono)}
                   >
+                    <TableCell align="center">
+                      <Checkbox
+                        checked={selectedOrders.includes(ono || -1)}
+                        onChange={() => handleCheckboxChange(ono || -1)}
+                      />
+                    </TableCell>
                     <TableCell align="center">{ono}</TableCell>
                     <TableCell align="center">{mno}</TableCell>
                     <TableCell align="center">{name}</TableCell>
@@ -103,9 +137,9 @@ function OrderListComponent() {
                         variant="body2"
                         sx={{
                           backgroundColor:
-                            status === "완료"
+                            status === "PICKED_UP"
                               ? "green"
-                              : status === "취소"
+                              : status === "CANCELLED"
                                 ? "red"
                                 : "orange",
                           color: "white",
@@ -117,11 +151,20 @@ function OrderListComponent() {
                         {status}
                       </Typography>
                     </TableCell>
-                    <TableCell align="center">{delFlag ? "예" : "아니오"}</TableCell>
                   </TableRow>
                 );
               })}
             </TableBody>
+            <Box marginTop={2} textAlign="right">
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleDeleteSelected}
+                disabled={selectedOrders.length === 0}
+              >
+                선택 삭제
+              </Button>
+            </Box>
           </Table>
         </TableContainer>
       )}

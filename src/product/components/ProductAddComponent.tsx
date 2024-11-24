@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 
 import { postAdd } from '../../api/productAPI';
 import { useNavigate } from 'react-router-dom';

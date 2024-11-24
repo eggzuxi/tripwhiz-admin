@@ -15,7 +15,10 @@ interface Product {
   pno: number;
   pname: string;
   price: number;
-  fileUrl: string;  // 제품 이미지 URL
+  attachFiles: {
+    ord: number;
+    fileName: string;
+  }[];  // 제품 이미지 URL
 }
 
 const ProductListComponent = () => {
@@ -78,16 +81,13 @@ const ProductListComponent = () => {
         {products.map((product) => (
           <Grid item xs={12} sm={6} md={4} key={product.pno}>
             <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
-              {/* 이미지 URL을 http://localhost:8080/로 시작하는 웹 경로로 설정 */}
+              {/* 여러 이미지 중 첫 번째 이미지를 표시 */}
               <CardMedia
                 component="img"
-                height="500"  // 이미지 크기 설정
-                image={`http://localhost:8080/${product.fileUrl}`}  // 이미지 URL 설정
+                height="500"
+                image={`http://192.168.35.111/${product.attachFiles && product.attachFiles.length > 0 ? product.attachFiles[0].fileName : ''}`}
                 alt={product.pname}
                 sx={{ objectFit: 'cover' }}
-                onError={(e) => {
-                  e.currentTarget.src = 'http://localhost:8080/m1.jpg'; // 대체 이미지
-                }}
               />
               <CardContent>
                 <Typography variant="h6" fontWeight="bold" color="textPrimary">

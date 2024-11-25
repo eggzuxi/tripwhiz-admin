@@ -1,4 +1,5 @@
 // StoreOwner 타입 정의 (백엔드와 필드명 일치)
+//so
 export interface IStoreOwner {
     sno: number;       // 점주 번호 (Primary Key)
     sname: string;     // 점주 이름

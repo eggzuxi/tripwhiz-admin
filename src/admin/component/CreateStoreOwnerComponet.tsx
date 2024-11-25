@@ -6,11 +6,11 @@ import { IStoreOwner } from '../../types/storeOwner';
 
 const CreateStoreOwnerComponent = () => {
     const [storeOwner, setStoreOwner] = useState<IStoreOwner>({
-        s_no: 0, // 숫자 타입으로 초기화
+        sno: 0, // 숫자 타입으로 초기화
         id: '',
         pw: '',
         email: '',
-        sName: '',
+        sname: '',
         delFlag: false, // boolean 타입
     });
 
@@ -51,8 +51,8 @@ const CreateStoreOwnerComponent = () => {
                         fullWidth
                         variant="outlined"
                         margin="normal"
-                        value={storeOwner.sName}
-                        onChange={(e) => setStoreOwner({ ...storeOwner, sName: e.target.value })}
+                        value={storeOwner.sname}
+                        onChange={(e) => setStoreOwner({ ...storeOwner, sname: e.target.value })}
                         sx={{ mb: 2 }}
                     />
                     <TextField

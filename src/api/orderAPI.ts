@@ -2,7 +2,7 @@ import axios from 'axios';
 import { IOrderList, IOrderRead, IPageResponse } from '../types/order';
 
 // API 엔드포인트
-const host = 'http://localhost:8080/api/order';
+const host = 'http://localhost:8080/api/ord';
 
 // 주문 목록 조회
 export const getOrderList = async (page: number, size: number): Promise<IPageResponse> => {
@@ -14,12 +14,14 @@ export const getOrderList = async (page: number, size: number): Promise<IPageRes
     const res = await axios.get<IPageResponse>(`${host}/list?page=${pageValue}&size=${sizeValue}`, {
       params: { page, size }, // 페이지 번호와 크기 전달
     });
-    console.log('Fetched Order List:', res.data);
+    console.log(res.data.dtoList);
     return res.data;
   } catch (error) {
     console.error('Error fetching order list:', error);
     throw error;
   }
+
+  
 };
 
 // 주문 상세 조회

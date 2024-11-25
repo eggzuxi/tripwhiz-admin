@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const host ='http://10.10.10.225:8080/api/product';
-const host ='http://localhost:8080/api/product';
+const host ='http://localhost:8082/api/product';
 
 const header = {
   headers: {
@@ -42,12 +42,9 @@ export const deleteProduct = async (pno: number) => {
   return res.data;
 };
 
-
-export const postAdd = async (productData: any) => {
+export const postAdd = async (productData: FormData) => {
   try {
-    const res = await axios.post(`${host}/add`, productData, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    const res = await axios.post(`${host}/add`, productData); // 헤더 생략
     console.log('API Response:', res.data);
     return res.data;
   } catch (error) {
@@ -55,6 +52,19 @@ export const postAdd = async (productData: any) => {
     throw error;
   }
 };
+
+// export const postAdd = async (productData: any) => {
+//   try {
+//     const res = await axios.post(`${host}/add`, productData, {
+//       headers: { 'Content-Type': 'application/json' },
+//     });
+//     console.log('API Response:', res.data);
+//     return res.data;
+//   } catch (error) {
+//     console.error('Failed to add product:', error);
+//     throw error;
+//   }
+// };
 
 // api/categoryAPI.ts
 export const getCategories = async () => {

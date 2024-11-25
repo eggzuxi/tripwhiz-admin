@@ -12,6 +12,7 @@ import SidebarLayout from '../layouts/SidebarLayout';
 import ordRouter from './ordRouter';
 import stockRouter from './stockRouter';
 import SpotRouter from './spotRouter';
+import adminRouter from "./adminRouter";
 
 const Loader = (Component) => (props) =>
   (
@@ -63,7 +64,8 @@ const mainRouter: RouteObject[] = [
       ...productRouter,
       ...stockRouter,
       ...SpotRouter,
-      ...storeOwnerRouter
+      ...storeOwnerRouter,
+      ...adminRouter
     ]
   }
 ];

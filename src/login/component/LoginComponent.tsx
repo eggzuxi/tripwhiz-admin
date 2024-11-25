@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // React Router 사용
 
 function LoginComponent() {
-    const [credentials, setCredentials] = useState({ id: '', pw: '' });
+    const [credentials, setCredentials] = useState({ id: '', pw: '', role: 'ADMIN' }); // role 추가
     const [error, setError] = useState('');
     const navigate = useNavigate(); // useNavigate 훅으로 리다이렉트 처리
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setCredentials({
             ...credentials,
             [e.target.name]: e.target.value,
@@ -62,6 +62,10 @@ function LoginComponent() {
         }
     };
 
+    const handleSignUp = () => {
+        navigate('/signup'); // 회원가입 페이지로 이동
+    };
+
     return (
         <div style={{ maxWidth: '400px', margin: '0 auto', textAlign: 'center' }}>
             <h2>Login</h2>
@@ -89,6 +93,18 @@ function LoginComponent() {
                         required
                     />
                 </div>
+                <div style={{ marginBottom: '1rem' }}>
+                    <select
+                        name="role"
+                        value={credentials.role}
+                        onChange={handleChange}
+                        style={{ padding: '0.5rem', width: '100%' }}
+                        required
+                    >
+                        <option value="ADMIN">Admin</option>
+                        <option value="STOREOWNER">Store Owner</option>
+                    </select>
+                </div>
                 <button
                     type="submit"
                     style={{
@@ -97,11 +113,24 @@ function LoginComponent() {
                         color: 'white',
                         border: 'none',
                         cursor: 'pointer',
+                        marginBottom: '1rem',
                     }}
                 >
                     Login
                 </button>
             </form>
+            <button
+                onClick={handleSignUp}
+                style={{
+                    padding: '0.5rem 1rem',
+                    background: 'gray',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                }}
+            >
+                Sign Up
+            </button>
         </div>
     );
 }

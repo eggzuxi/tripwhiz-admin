@@ -1,167 +1,110 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { addSpot, getSpots } from "../../api/spotAPI";
+import { addSpot } from "../../api/spotAPI"; // addSpot API 호출
 import { TextField, Button, Box, Typography } from "@mui/material";
 
-interface Spot {
-  spno: number;
-  spotname: string;
-  address: string;
-  tel: string;
-  storeowner?: {
-    sno: number;
-    sname: string;
-  };
-}
-
 const SpotAddComponent = () => {
+  // Spot의 필드에 대한 상태 관리
   const [spotname, setSpotName] = useState(""); // Spot 이름
   const [address, setAddress] = useState(""); // Spot 주소
   const [tel, setTel] = useState(""); // Spot 전화번호
-  const [storeOwner, setStoreOwner] = useState({
-    sno: "",
-    sname: "",
-  }); // 점주 정보
-  const [spots, setSpots] = useState<Spot[]>([]); // 기존 Spot 목록
-  const [loading, setLoading] = useState(false); // 로딩 상태
-  const navigate = useNavigate();
+  const [storeOwner, setStoreOwner] = useState({ sno: "", sname: "" }); // 점주 정보
 
-  // Spot 목록 가져오기
-  useEffect(() => {
-    setLoading(true);
-    getSpots(1, 100) // 충분히 많은 Spot을 가져오기
-      .then((response) => {
-        setSpots(response.dtoList);
-      })
-      .catch(() => {
-        alert("Spot 데이터를 가져오는 데 실패했습니다.");
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  const navigate = useNavigate(); // navigate 함수로 페이지 이동
 
-  // sno 중복 확인
-  const isDuplicateSno = (sno: number) => {
-    return spots.some((spot) => spot.storeowner?.sno === sno); // Optional chaining 사용
-  };
-
-  // Spot 추가 함수
-  const handleAddSpot = () => {
-    const sno = Number(storeOwner.sno);
-
-    // 필드 유효성 검사
-    if (!spotname.trim() || !address.trim() || !tel.trim() || !sno) {
+  // Spot 추가 핸들러
+  const handleAddSpot = async () => {
+    const sno = parseInt(storeOwner.sno, 10); // 점주 번호를 숫자형으로 변환
+    if (!spotname || !address || !tel || isNaN(sno)) {
       alert("모든 필드를 올바르게 입력해주세요.");
       return;
     }
 
-    if (isDuplicateSno(sno)) {
-      alert("중복된 점주 번호(sno)가 있습니다.");
-      return;
-    }
-
+    // 새로운 Spot 데이터 생성
     const newSpot = {
-      spotname,
-      address,
-      tel,
-      storeowner: {
-        sno,
-        sname: storeOwner.sname.trim(),
-      },
+      spotname, // Spot 이름
+      address, // Spot 주소
+      tel, // Spot 전화번호
+      sno, // 점주 번호
+      sname: storeOwner.sname, // 점주 이름
     };
 
-    setLoading(true); // 로딩 상태 활성화
-    addSpot(newSpot)
-      .then(() => {
-        alert("Spot이 성공적으로 추가되었습니다.");
-        navigate("/spot/list"); // 추가 후 목록 페이지로 이동
-      })
-      .catch(() => {
-        alert("Spot 추가에 실패했습니다.");
-      })
-      .finally(() => setLoading(false)); // 로딩 상태 비활성화
+    try {
+      // Spot 추가 API 호출
+      await addSpot(newSpot);
+      alert("Spot이 성공적으로 추가되었습니다.");
+      navigate("/spot/list"); // 추가 후 목록 페이지로 이동
+    } catch (error) {
+      console.error("Error adding spot:", error);
+      alert("Spot 추가에 실패했습니다.");
+    }
   };
 
   return (
-    <Box
-      sx={{
-        maxWidth: "600px",
-        mx: "auto",
-        mt: 8,
-        p: 4,
-        bgcolor: "grey.50",
-        borderRadius: 2,
-        boxShadow: 3,
-      }}
-    >
-      <Typography variant="h5" fontWeight="bold" textAlign="center" mb={4}>
+    <Box maxWidth={600} mx="auto" mt={8} p={4} bgcolor="white" boxShadow={3}>
+      <Typography variant="h5" fontWeight="bold" mb={4}>
         Spot 추가
       </Typography>
 
-      <Box component="form" noValidate>
-        <TextField
-          label="Spot 이름"
-          value={spotname}
-          onChange={(e) => setSpotName(e.target.value)}
-          fullWidth
-          margin="normal"
-          required
-        />
-        <TextField
-          label="주소"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          fullWidth
-          margin="normal"
-          required
-        />
-        <TextField
-          label="전화번호"
-          value={tel}
-          onChange={(e) => setTel(e.target.value)}
-          fullWidth
-          margin="normal"
-          required
-        />
-        <TextField
-          label="점주 번호 (Store Owner ID)"
-          type="number"
-          value={storeOwner.sno}
-          onChange={(e) =>
-            setStoreOwner({ ...storeOwner, sno: e.target.value })
-          }
-          fullWidth
-          margin="normal"
-          required
-        />
-        <TextField
-          label="점주 이름 (Store Owner Name)"
-          value={storeOwner.sname}
-          onChange={(e) =>
-            setStoreOwner({ ...storeOwner, sname: e.target.value })
-          }
-          fullWidth
-          margin="normal"
-          required
-        />
+      {/* Spot 이름 입력 필드 */}
+      <TextField
+        label="Spot 이름"
+        value={spotname}
+        onChange={(e) => setSpotName(e.target.value)}
+        fullWidth
+        margin="normal"
+        required
+      />
 
-        <Box textAlign="center" mt={4}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleAddSpot}
-            disabled={loading} // 로딩 중에는 버튼 비활성화
-            sx={{ mr: 2 }}
-          >
-            {loading ? "추가 중..." : "추가"}
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={() => navigate("/spot/list")}
-          >
-            취소
-          </Button>
-        </Box>
+      {/* Spot 주소 입력 필드 */}
+      <TextField
+        label="주소"
+        value={address}
+        onChange={(e) => setAddress(e.target.value)}
+        fullWidth
+        margin="normal"
+        required
+      />
+
+      {/* Spot 전화번호 입력 필드 */}
+      <TextField
+        label="전화번호"
+        value={tel}
+        onChange={(e) => setTel(e.target.value)}
+        fullWidth
+        margin="normal"
+        required
+      />
+
+      {/* 점주 번호 입력 필드 */}
+      <TextField
+        label="점주 번호"
+        value={storeOwner.sno}
+        onChange={(e) =>
+          setStoreOwner({ ...storeOwner, sno: e.target.value })
+        }
+        fullWidth
+        margin="normal"
+        required
+      />
+
+      {/* 점주 이름 입력 필드 */}
+      <TextField
+        label="점주 이름"
+        value={storeOwner.sname}
+        onChange={(e) =>
+          setStoreOwner({ ...storeOwner, sname: e.target.value })
+        }
+        fullWidth
+        margin="normal"
+        required
+      />
+
+      {/* 추가 버튼 */}
+      <Box textAlign="center" mt={4}>
+        <Button variant="contained" color="primary" onClick={handleAddSpot}>
+          추가
+        </Button>
       </Box>
     </Box>
   );

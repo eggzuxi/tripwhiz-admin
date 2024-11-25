@@ -20,6 +20,7 @@ import { IStoreOwner } from '../../types/storeOwner';
 const ListManagerComponent = () => {
     const [storeOwners, setStoreOwners] = useState<IStoreOwner[]>([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     const fetchStoreOwners = async () => {
         try {
@@ -51,11 +52,10 @@ const ListManagerComponent = () => {
         fetchStoreOwners();
     }, []);
 
+    // 점주 추가 버튼 클릭 시 호출되는 함수
     const handleAddStoreOwner = () => {
-        const navigate = useNavigate();
-        navigate('/storeOwner/create'); // 점주 추가 페이지로 이동
+        navigate('/storeOwner/create'); // '/storeOwner/add' 경로로 이동하여 점주 추가 페이지로 이동
     };
-
     return (
         <Card>
             <CardHeader

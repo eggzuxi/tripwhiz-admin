@@ -21,6 +21,8 @@ interface Product {
   }[];  // 제품 이미지 URL
 }
 
+const BASE_URL = process.env.REACT_APP_IMG_URL;
+
 const ProductListComponent = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [page, setPage] = useState(1);
@@ -85,7 +87,11 @@ const ProductListComponent = () => {
               <CardMedia
                 component="img"
                 height="500"
-                image={`http://192.168.35.111/${product.attachFiles && product.attachFiles.length > 0 ? product.attachFiles[0].fileName : ''}`}
+                image={
+                  product.attachFiles && product.attachFiles.length > 0
+                    ? `${BASE_URL}/${product.attachFiles.find(file => file.ord === 0)?.fileName || ''}`
+                    : ''
+                }
                 alt={product.pname}
                 sx={{ objectFit: 'cover' }}
               />

@@ -5,14 +5,19 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Button, Card, CardContent, CardHeader, Divider, Grid } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
+import { IProduct } from '../../types/product';
 
-const initialState = {
+const initialState: IProduct = {
+  pno: 0,
   pname: '',
   pdesc: '',
   price: 0,
-  categoryCno: 0,
-  subCategoryScno: 0,
-  delflag: false
+  category: '',
+  subcategory: '',
+  themecategory: '',
+  fileUrl: '',
+  delflag: false,
+  uploadFileNames:[]
 };
 
 const categories = [
@@ -89,15 +94,26 @@ function ProductAddComponent() {
 
   const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log('상품 등록:', product)
 
     const formData = new FormData();
-    formData.append('pname', product.pname);
-    formData.append('pdesc', product.pdesc);
-    formData.append('price', product.price.toString());
-    formData.append('categoryCno', categoryCno.toString());
-    formData.append('subCategoryScno', subCategoryScno.toString());
 
+    // JSON 데이터를 Blob으로 추가
+    const jsonBlob = new Blob(
+      [
+        JSON.stringify({
+          pname: product.pname,
+          pdesc: product.pdesc,
+          price: product.price,
+          categoryCno: categoryCno,
+          subCategoryScno: subCategoryScno,
+          delflag: false,
+        }),
+      ],
+      { type: 'application/json' }
+    );
+    formData.append('productListDTO', jsonBlob); // JSON 데이터를 FormData에 추가
+
+    // 파일 추가
     if (selectedFiles) {
       for (let i = 0; i < selectedFiles.length; i++) {
         formData.append('files', selectedFiles[i]);
@@ -105,13 +121,14 @@ function ProductAddComponent() {
     }
 
     try {
-      const response = await postAdd(formData); // postAdd를 통해 데이터 전송
+      const response = await postAdd(formData);
       console.log('Product added successfully:', response);
-      navigate('/product/list'); // 상품 리스트 페이지로 이동
+      navigate('/product/list');
     } catch (error) {
       console.error('Failed to add product:', error);
     }
   };
+
 
   return (
     <Grid

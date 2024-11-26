@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getSpotById, updateSpot } from "../../api/spotAPI";
+import { Spot } from "../../types/spot";
 import { TextField, Button, Box, Typography } from "@mui/material";
 
 const SpotModifyComponent = () => {
@@ -39,14 +40,13 @@ const SpotModifyComponent = () => {
       return;
     }
 
-    const updatedSpot = {
+    const updatedSpot: Spot = {
+      spno: Number(spno),
       spotname,
       address,
       tel,
-      storeowner: {
-        sno: Number(storeOwner.sno),
-        sname: storeOwner.sname,
-      },
+      sno: Number(storeOwner.sno),
+      sname: storeOwner.sname,
     };
 
     updateSpot(Number(spno), updatedSpot)
@@ -101,7 +101,9 @@ const SpotModifyComponent = () => {
           label="점주 번호 (Store Owner ID)"
           type="number"
           value={storeOwner.sno}
-          onChange={(e) => setStoreOwner({ ...storeOwner, sno: e.target.value })}
+          onChange={(e) =>
+            setStoreOwner({ ...storeOwner, sno: e.target.value })
+          }
           fullWidth
           margin="normal"
         />

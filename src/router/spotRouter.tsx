@@ -47,7 +47,7 @@ const spotRouter: RouteObject[] = [
         element: <SpotAdd />
       },
       {
-        path: 'modi/:spno',
+        path: 'update/:spno',
         element: <SpotModi />
       }
     ]

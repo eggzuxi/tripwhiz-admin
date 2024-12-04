@@ -1,56 +1,84 @@
 import axios from "axios";
 import { Spot } from "../types/spot";
 
-// Axios 인스턴스 생성
-const spotAPI = axios.create({
-  baseURL: "http://localhost:8080/api/spot", // API 기본 URL
-  headers: {
-    "Content-Type": "application/json", // 기본 Content-Type
-  },
-});
+// API 기본 URL 설정
+const host = "http://localhost:8082/api/spot";
 
-// 요청 인터셉터: Authorization 헤더 추가
-spotAPI.interceptors.request.use((config) => {
+// Axios 요청 설정을 중앙화
+const getHeaders = (): Record<string, string> => {
   const accessToken = localStorage.getItem("accessToken");
-  if (accessToken) {
-    config.headers = {
-      ...config.headers,
-      Authorization: `Bearer ${accessToken}`,
-    };
+  return {
+    "Content-Type": "application/json",
+    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+  };
+};
+
+// 공통 에러 처리 함수
+const handleError = (error: any, action: string): never => {
+  if (error.response) {
+    console.error(`${action} 오류:`, error.response.data);
+    throw new Error(`${action} 중 오류가 발생했습니다: ${error.response.data.message || error.response.data}`);
+  } else if (error.request) {
+    console.error(`${action} 오류 (No response):`, error.request);
+    throw new Error("서버 응답이 없습니다. 서버를 확인해주세요.");
+  } else {
+    console.error(`${action} 오류 (Request setup):`, error.message);
+    throw new Error(`요청 설정 중 오류가 발생했습니다: ${error.message}`);
   }
-  return config;
-});
+};
 
-// Spot 목록 조회 (페이지네이션 적용)
-export const getSpots = (page: number, size: number): Promise<Spot[]> =>
-  spotAPI
-    .get<Spot[]>("/list", {
+// Spot 생성
+export const addSpot = async (spot: Partial<Spot>): Promise<Spot> => {
+  try {
+    const res = await axios.post(`${host}/add`, spot, { headers: getHeaders() });
+    console.log("Spot 생성 응답:", res.data);
+    return res.data;
+  } catch (error) {
+    handleError(error, "Spot 생성");
+  }
+};
+
+// Spot 목록 가져오기 (페이지네이션)
+export const getSpots = async (page: number, size: number): Promise<Spot[]> => {
+  try {
+    const res = await axios.get(`${host}/list`, {
+      headers: getHeaders(),
       params: { page, size },
-    })
-    .then((response) => response.data);
+    });
+    console.log("Spot 목록 응답:", res.data);
+    return res.data || [];
+  } catch (error) {
+    handleError(error, "Spot 목록 로드");
+  }
+};
 
-// 단일 Spot 조회
-export const getSpotById = (spno: number): Promise<Spot> =>
-  spotAPI
-    .get<Spot>(`/read/${spno}`)
-    .then((response) => response.data);
-
-// Spot 추가
-export const addSpot = (spot: Partial<Spot>): Promise<Spot> =>
-  spotAPI
-    .post<Spot>("/add", spot)
-    .then((response) => response.data);
+// 단일 Spot 가져오기
+export const getSpotById = async (spno: number): Promise<Spot> => {
+  try {
+    const res = await axios.get(`${host}/read/${spno}`, { headers: getHeaders() });
+    console.log("단일 Spot 응답:", res.data);
+    return res.data;
+  } catch (error) {
+    handleError(error, "단일 Spot 로드");
+  }
+};
 
 // Spot 수정
-export const updateSpot = (spno: number, spot: Partial<Spot>): Promise<void> =>
-  spotAPI
-    .put(`/update/${spno}`, spot)
-    .then((response) => response.data);
+export const updateSpot = async (spno: number, spot: Partial<Spot>): Promise<void> => {
+  try {
+    const res = await axios.put(`${host}/update/${spno}`, spot, { headers: getHeaders() });
+    console.log("Spot 수정 응답 상태:", res.status);
+  } catch (error) {
+    handleError(error, "Spot 수정");
+  }
+};
 
-// Spot 소프트 삭제
-export const softDeleteSpot = (spno: number): Promise<void> =>
-  spotAPI
-    .delete(`/delete/${spno}`)
-    .then((response) => response.data);
-
-export default spotAPI;
+// Spot 삭제
+export const deleteSpot = async (spno: number): Promise<void> => {
+  try {
+    const res = await axios.delete(`${host}/delete/${spno}`, { headers: getHeaders() });
+    console.log("Spot 삭제 응답 상태:", res.status);
+  } catch (error) {
+    handleError(error, "Spot 삭제");
+  }
+};

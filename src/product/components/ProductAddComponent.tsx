@@ -1,241 +1,88 @@
-import { ChangeEvent, useRef, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Category, ProductListDTO, SubCategory } from '../../types/product';
+import { addProduct, fetchCategories, fetchSubCategories } from '../../api/productAPI';
 
-import { postAdd } from '../../api/productAPI';
-import { useNavigate } from 'react-router-dom';
-import { Box, Button, Card, CardContent, CardHeader, Divider, Grid } from '@mui/material';
-import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
-import { IProduct } from '../../types/product';
 
-const initialState: IProduct = {
-  pno: 0,
-  pname: '',
-  pdesc: '',
-  price: 0,
-  category: '',
-  subcategory: '',
-  themecategory: '',
-  fileUrl: '',
-  delflag: false,
-  uploadFileNames:[]
-};
+const ProductAddComponent: React.FC = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+  const [newProduct, setNewProduct] = useState<ProductListDTO>({
+    pno: 0,
+    pname: '',
+    pdesc: '',
+    price: 0,
+    cno: 0,
+    scno: 0,
+  });
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
 
-const categories = [
-  { cno: 1, name: '수납/편의' },
-  { cno: 2, name: '의류' },
-  { cno: 3, name: '안전/위생' },
-  { cno: 4, name: '악세사리' },
-  { cno: 5, name: '액티비티 용품' },
-];
+  useEffect(() => {
+    fetchCategories().then(setCategories);
+  }, []);
 
-const subcategories = {
-  1: [
-    { scno: 1, name: '파우치' },
-    { scno: 2, name: '케이스/커버' },
-    { scno: 3, name: '안대/목베개' },
-    { scno: 4, name: '와이파이 유심' }
-  ],
-  2: [
-    { scno: 5, name: '아우터' },
-    { scno: 6, name: '상의/하의' },
-    { scno: 7, name: '잡화' }
-  ],
-  3: [
-    { scno: 8, name: '뷰티케어' },
-    { scno: 9, name: '세면도구' },
-    { scno: 10, name: '상비약' }
-  ],
-  4: [
-    { scno: 11, name: '전기/전자용품' },
-    { scno: 12, name: '여행 아이템' }
-  ],
-  5: [
-    { scno: 13, name: '캠핑/등산' },
-    { scno: 14, name: '수영' },
-    { scno: 15, name: '야외/트래블' }
-  ]
-};
-
-function ProductAddComponent() {
-  const [product, setProduct] = useState({ ...initialState });
-  const [categoryCno, setCategoryCno] = useState(1);
-  const [subCategoryScno, setSubCategoryScno] = useState(0);
-  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
-
-  // const moveToList = () => {
-  //   navigate('/product/list');
-  // };
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setProduct((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleCategoryChange = (cno: number) => {
+    setNewProduct({ ...newProduct, cno, scno: 0 });
+    fetchSubCategories(cno).then(setSubCategories);
   };
 
-  const handleCategoryChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const selectedCategoryCno = parseInt(e.target.value, 10);
-    setCategoryCno(selectedCategoryCno);
-    setSubCategoryScno(0); // 상위 카테고리 변경 시 하위 카테고리 초기화
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
   };
 
-  const handleSubCategoryChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSubCategoryScno(parseInt(e.target.value, 10));
-  };
-
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setSelectedFiles(e.target.files); // 파일 리스트 저장
+      setImageFiles(Array.from(e.target.files));
     }
   };
 
-  const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-
-    const formData = new FormData();
-
-    // JSON 데이터를 Blob으로 추가
-    const jsonBlob = new Blob(
-      [
-        JSON.stringify({
-          pname: product.pname,
-          pdesc: product.pdesc,
-          price: product.price,
-          categoryCno: categoryCno,
-          subCategoryScno: subCategoryScno,
-          delflag: false,
-        }),
-      ],
-      { type: 'application/json' }
-    );
-    formData.append('productListDTO', jsonBlob); // JSON 데이터를 FormData에 추가
-
-    // 파일 추가
-    if (selectedFiles) {
-      for (let i = 0; i < selectedFiles.length; i++) {
-        formData.append('files', selectedFiles[i]);
-      }
-    }
-
-    try {
-      const response = await postAdd(formData);
-      console.log('Product added successfully:', response);
-      navigate('/product/list');
-    } catch (error) {
-      console.error('Failed to add product:', error);
-    }
+  const handleAddProduct = () => {
+    addProduct(newProduct, imageFiles).then(() => {
+      alert('Product added successfully');
+    });
   };
-
 
   return (
-    <Grid
-      container
-      direction="column"
-      justifyContent="center"
-      alignItems="stretch"
-      spacing={3}
-      sx={{ maxWidth: '800px', margin: '0 auto' }}
-    >
-      <Card>
-        <CardHeader title="상품 등록 화면" />
-        <Divider />
-        <CardContent>
-          <TextField
-            id="pname"
-            label="상품명"
-            value={product.pname}
-            name="pname"
-            onChange={handleChange}
-            fullWidth
-            sx={{ marginBottom: 2 }}
-          />
-          <TextField
-            id="price"
-            label="가격"
-            type="number"
-            value={product.price}
-            name="price"
-            onChange={handleChange}
-            fullWidth
-            sx={{ marginBottom: 2 }}
-          />
-          <TextField
-            id="pdesc"
-            label="상품 설명"
-            value={product.pdesc}
-            name="pdesc"
-            onChange={handleChange}
-            fullWidth
-            multiline
-            minRows={4}
-            sx={{ marginBottom: 2 }}
-          />
-          <TextField
-            id="categoryCno"
-            select
-            label="상위 카테고리"
-            value={categoryCno}
-            onChange={handleCategoryChange}
-            helperText="상위 카테고리를 선택하세요"
-            fullWidth
-            sx={{ marginBottom: 2 }}
-          >
-            {categories.map((category) => (
-              <MenuItem key={category.cno} value={category.cno}>
-                {category.name}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            id="subCategoryScno"
-            select
-            label="하위 카테고리"
-            value={subCategoryScno}
-            onChange={handleSubCategoryChange}
-            helperText="하위 카테고리를 선택하세요"
-            fullWidth
-            sx={{ marginBottom: 2 }}
-          >
-            {subcategories[categoryCno]?.map((subcategory) => (
-              <MenuItem key={subcategory.scno} value={subcategory.scno}>
-                {subcategory.name}
-              </MenuItem>
-            ))}
-          </TextField>
-          <Box sx={{ marginBottom: 2 }}>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileChange}
-              style={{ marginBottom: '16px' }}
-            />
-            {selectedFiles && (
-              <Box>
-                <strong>선택된 파일:</strong>
-                <ul>
-                  {Array.from(selectedFiles).map((file, index) => (
-                    <li key={index}>{file.name}</li>
-                  ))}
-                </ul>
-              </Box>
-            )}
-          </Box>
-          <Button
-            sx={{ marginTop: 2 }}
-            variant="contained"
-            onClick={handleClick}
-          >
-            상품 등록
-          </Button>
-        </CardContent>
-      </Card>
-    </Grid>
+    <div>
+      <h1>Add Product</h1>
+      <input
+        type="text"
+        name="pname"
+        placeholder="Product Name"
+        onChange={handleInputChange}
+      />
+      <textarea
+        name="pdesc"
+        placeholder="Product Description"
+        onChange={handleInputChange}
+      />
+      <input
+        type="number"
+        name="price"
+        placeholder="Price"
+        onChange={handleInputChange}
+      />
+      <select onChange={(e) => handleCategoryChange(Number(e.target.value))}>
+        <option value="">Select Category</option>
+        {categories.map((cat) => (
+          <option key={cat.cno} value={cat.cno}>
+            {cat.cname}
+          </option>
+        ))}
+      </select>
+      {subCategories.length > 0 && (
+        <select onChange={(e) => setNewProduct({ ...newProduct, scno: Number(e.target.value) })}>
+          <option value="">Select Subcategory</option>
+          {subCategories.map((sub) => (
+            <option key={sub.scno} value={sub.scno}>
+              {sub.sname}
+            </option>
+          ))}
+        </select>
+      )}
+      <input type="file" multiple onChange={handleFileChange} />
+      <button onClick={handleAddProduct}>Add Product</button>
+    </div>
   );
-}
+};
 
 export default ProductAddComponent;

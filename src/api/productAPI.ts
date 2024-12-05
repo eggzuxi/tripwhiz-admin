@@ -1,91 +1,89 @@
-import axios from "axios";
+import axios from 'axios';
+import { Category, ProductListDTO, ProductReadDTO, SubCategory } from '../types/product';
 
-// const host ='http://10.10.10.225:8080/api/product';
-const host ='http://localhost:8082/api/product';
 
-const header = {
+// Axios 인스턴스 생성
+const api = axios.create({
+  baseURL: 'http://localhost:8082',
   headers: {
-    'Content-Type': 'multipart/form-data', // 파일 전송 형식 지정
+    'Content-Type': 'application/json',
+  },
+});
+
+// Axios 요청에 accessToken 추가
+api.interceptors.request.use((config) => {
+  const accessToken = localStorage.getItem('accessToken');
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
-}
+  return config;
+});
 
-export const getList = async (page: number) => {
+/**
+ * 상품 관련 API
+ */
 
-  try {
-    const res = await axios.get(`${host}/list?page=${page}`);
-    console.log('API Response for getList:', res.data); // 전체 응답을 콘솔에 출력
-    console.log('DTO List:', res.data.dtoList); // dtoList 부분만 콘솔에 출력
-    return res.data.dtoList;
-  } catch (error) {
-    console.error('Error fetching product list:', error);
-  }
-
+// 상품 목록 조회
+export const fetchProductList = (): Promise<ProductListDTO[]> => {
+  return api.get('/api/admin/product/list')
+    .then((response) => {
+      if (response.data && response.data.dtoList) {
+        return response.data.dtoList;
+      }
+      console.error('Invalid API response:', response.data);
+      return [];
+    });
 };
 
-export const getOne = async (pno: number): Promise<ProductReadDTO | null> => {
-  try {
-    const res = await axios.get<ProductReadDTO>(`${host}/read/${pno}`);
-    return res.data;
-  } catch (error: any) {
-    console.error("Error fetching product details:", error.message || error);
-    return null;
+// 특정 상품 조회
+export const fetchProductById = (pno: number): Promise<ProductReadDTO> => {
+  return api.get(`/api/admin/product/read/${pno}`)
+    .then((response) => response.data);
+};
+
+// 상품 추가
+export const addProduct = (product: ProductListDTO, imageFiles?: File[]): Promise<number> => {
+  const formData = new FormData();
+  formData.append('productListDTO', JSON.stringify(product));
+  if (imageFiles) {
+    imageFiles.forEach((file) => formData.append('imageFiles', file));
   }
+
+  return api.post('/api/admin/product/add', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }).then((response) => response.data);
 };
 
-// 상품 수정 API
-export const updateProduct = async (product: any) => {
-  const res = await axios.put(`${host}/update`, product);
-  return res.data;
-};
-
-// 상품 삭제 API
-export const deleteProduct = async (pno: number) => {
-  const res = await axios.delete(`${host}/delete/${pno}`);
-  return res.data;
-};
-
-export const postAdd = async (productData: FormData) => {
-  try {
-    const res = await axios.post(`${host}/add`, productData); // 헤더 생략
-    console.log('API Response:', res.data);
-    return res.data;
-  } catch (error) {
-    console.error('Failed to add product:', error);
-    throw error;
+// 상품 수정
+export const modifyProduct = (pno: number, product: ProductListDTO, imageFiles?: File[]): Promise<number> => {
+  const formData = new FormData();
+  formData.append('productListDTO', JSON.stringify(product));
+  if (imageFiles) {
+    imageFiles.forEach((file) => formData.append('imageFiles', file));
   }
+
+  return api.put(`/api/admin/product/update/${pno}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }).then((response) => response.data);
 };
 
-// export const postAdd = async (productData: any) => {
-//   try {
-//     const res = await axios.post(`${host}/add`, productData, {
-//       headers: { 'Content-Type': 'application/json' },
-//     });
-//     console.log('API Response:', res.data);
-//     return res.data;
-//   } catch (error) {
-//     console.error('Failed to add product:', error);
-//     throw error;
-//   }
-// };
-
-// api/categoryAPI.ts
-export const getCategories = async () => {
-  try {
-    const response = await fetch('/api/categories'); // 카테고리 API 엔드포인트
-    const data = await response.json();
-    console.log('API Response for getCategories:', data);
-    return data;
-  } catch (error) {
-    console.error('상위 카테고리 로드 실패', error);
-  }
+// 상품 삭제
+export const deleteProduct = (pno: number): Promise<void> => {
+  return api.put(`/api/admin/product/delete/${pno}`).then(() => undefined);
 };
 
-export const getSubCategories = async (categoryId: number) => {
-  try {
-    const response = await fetch(`/api/subcategories/${categoryId}`); // 하위 카테고리 API 엔드포인트
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('하위 카테고리 로드 실패', error);
-  }
+/**
+ * 카테고리 관련 API
+ */
+
+// 전체 카테고리 조회
+export const fetchCategories = (): Promise<Category[]> => {
+  return api.get('/api/categories')
+    .then((response) => response.data);
+};
+
+// 특정 카테고리의 하위 카테고리 조회
+export const fetchSubCategories = (cno: number): Promise<SubCategory[]> => {
+  return api.get(`/api/categories/${cno}/subcategories`)
+    .then((response) => response.data);
 };

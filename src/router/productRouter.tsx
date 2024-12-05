@@ -23,6 +23,10 @@ const ProductRead = Loader(
   lazy(() => import('../product/pages/ProductReadPage'))
 );
 
+const ProductModify = Loader(
+  lazy(() => import('../product/pages/ProductModifyPage'))
+);
+
 
 const productRouter: RouteObject[] = [
   {
@@ -43,6 +47,10 @@ const productRouter: RouteObject[] = [
       {
         path: 'read/:pno',
         element: <ProductRead/>
+      },
+      {
+        path: 'update/:pno',
+        element: <ProductModify/>
       }
     ]
   }

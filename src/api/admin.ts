@@ -2,7 +2,8 @@ import { IAdmin } from '../types/admin'; // IAdmin 타입 임포트
 import axios from 'axios';
 
 // localhost
-const host = 'http://localhost:8080/api';
+const host = 'http://localhost:8082/api';
+// const host = 'http://10.10.10.214:8082/api';
 
 // 관리자 생성
 export const createAdmin = async (admin: IAdmin): Promise<IAdmin> => {

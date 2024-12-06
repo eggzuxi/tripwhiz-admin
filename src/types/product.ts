@@ -26,3 +26,9 @@ export interface SubCategory {
   sname: string; // 서브카테고리 이름
   cno: number; // 상위 카테고리 ID
 }
+
+export interface ThemeCategory {
+  tno: number; // 테마 ID
+  tname: string; // 테마 이름
+}
+

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Category, ProductListDTO, ProductReadDTO, SubCategory } from '../types/product';
+import { Category, ProductListDTO, ProductReadDTO, SubCategory, ThemeCategory } from '../types/product';
 
 
 // Axios 인스턴스 생성
@@ -86,4 +86,9 @@ export const fetchCategories = (): Promise<Category[]> => {
 export const fetchSubCategories = (cno: number): Promise<SubCategory[]> => {
   return api.get(`/api/categories/${cno}/subcategories`)
     .then((response) => response.data);
+};
+
+// 테마 목록 조회
+export const fetchThemes = (): Promise<ThemeCategory[]> => {
+  return api.get('/api/admin/themes').then((response) => response.data);
 };

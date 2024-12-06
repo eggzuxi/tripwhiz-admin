@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Category, ProductListDTO, SubCategory } from '../../types/product';
-import { addProduct, fetchCategories, fetchSubCategories } from '../../api/productAPI';
-
+import { Category, SubCategory, ProductListDTO, ThemeCategory } from '../../types/product';
+import { fetchCategories, fetchSubCategories, fetchThemes, addProduct } from '../../api/productAPI';
 
 const ProductAddComponent: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+  const [themes, setThemes] = useState<ThemeCategory[]>([]);
+  const [selectedThemes, setSelectedThemes] = useState<number[]>([]); // 테마 ID 저장
   const [newProduct, setNewProduct] = useState<ProductListDTO>({
     pno: 0,
     pname: '',
@@ -16,8 +17,10 @@ const ProductAddComponent: React.FC = () => {
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
 
+  // 카테고리 데이터 가져오기
   useEffect(() => {
     fetchCategories().then(setCategories);
+    fetchThemes().then(setThemes); // 테마 데이터 가져오기
   }, []);
 
   const handleCategoryChange = (cno: number) => {
@@ -35,8 +38,21 @@ const ProductAddComponent: React.FC = () => {
     }
   };
 
+  const handleThemeToggle = (tno: number) => {
+    if (selectedThemes.includes(tno)) {
+      setSelectedThemes(selectedThemes.filter((id) => id !== tno));
+    } else {
+      setSelectedThemes([...selectedThemes, tno]);
+    }
+  };
+
   const handleAddProduct = () => {
-    addProduct(newProduct, imageFiles).then(() => {
+    const productData = {
+      ...newProduct,
+      themes: selectedThemes, // 선택한 테마 ID 리스트 추가
+    };
+
+    addProduct(productData, imageFiles).then(() => {
       alert('Product added successfully');
     });
   };
@@ -79,6 +95,25 @@ const ProductAddComponent: React.FC = () => {
           ))}
         </select>
       )}
+
+      {/* 테마 선택 */}
+      <h3>Select Themes</h3>
+      {themes.length > 0 ? (
+        themes.map((theme) => (
+          <label key={theme.tno} style={{ display: 'block', margin: '5px 0' }}>
+            <input
+              type="checkbox"
+              value={theme.tno}
+              checked={selectedThemes.includes(theme.tno)}
+              onChange={() => handleThemeToggle(theme.tno)}
+            />
+            {theme.tname}
+          </label>
+        ))
+      ) : (
+        <p>No themes available</p>
+      )}
+
       <input type="file" multiple onChange={handleFileChange} />
       <button onClick={handleAddProduct}>Add Product</button>
     </div>

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { IOrderList, IOrderRead, IPageResponse } from '../types/order';
 
 // API 엔드포인트
-const host = 'http://localhost:8080/api/ord';
+const host = 'http://localhost:8082/api/user/order';
 
 // 주문 목록 조회
 export const getOrderList = async (page: number, size: number): Promise<IPageResponse> => {

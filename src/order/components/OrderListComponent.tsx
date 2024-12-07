@@ -64,28 +64,29 @@ function OrderListComponent() {
     );
   };
 
-  const handleDeleteSelected = async () => {
-    if (selectedOrders.length === 0) {
-      alert("삭제할 주문을 선택하세요.");
-      return;
-    }
-
-    const confirmDelete = window.confirm("선택된 주문을 삭제하시겠습니까?");
-    if (!confirmDelete) return;
-
-    try {
-      await deleteOrders(selectedOrders); // 선택된 주문 삭제 API 호출
-      setPageResponse((prev) => ({
-        ...prev,
-        dtoList: prev.dtoList.filter((order) => !selectedOrders.includes(order.ono)),
-      })); // UI 업데이트: 삭제된 주문 제거
-      setSelectedOrders([]); // 선택 초기화
-      alert("선택된 주문이 삭제되었습니다.");
-    } catch (error) {
-      console.error("Error deleting selected orders:", error);
-      alert("주문 삭제 중 오류가 발생했습니다.");
-    }
-  };
+  // 주문 취소 구현 안한다고 해서 주석처리함 (JH)
+  // const handleDeleteSelected = async () => {
+  //   if (selectedOrders.length === 0) {
+  //     alert("취소할 주문을 선택하세요.");
+  //     return;
+  //   }
+  //
+  //   const confirmDelete = window.confirm("선택된 주문을 취소하시겠습니까?");
+  //   if (!confirmDelete) return;
+  //
+  //   try {
+  //     await deleteOrders(selectedOrders); // 선택된 주문 삭제 API 호출
+  //     setPageResponse((prev) => ({
+  //       ...prev,
+  //       dtoList: prev.dtoList.filter((order) => !selectedOrders.includes(order.ono)),
+  //     })); // UI 업데이트: 삭제된 주문 제거
+  //     setSelectedOrders([]); // 선택 초기화
+  //     alert("선택된 주문이 취소되었습니다.");
+  //   } catch (error) {
+  //     console.error("Error deleting selected orders:", error);
+  //     alert("주문 삭제 중 오류가 발생했습니다.");
+  //   }
+  // };
 
   return (
     <Box padding={4}>
@@ -155,16 +156,17 @@ function OrderListComponent() {
                 );
               })}
             </TableBody>
-            <Box marginTop={2} textAlign="right">
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={handleDeleteSelected}
-                disabled={selectedOrders.length === 0}
-              >
-                선택 삭제
-              </Button>
-            </Box>
+            {/*<Box marginTop={2} textAlign="right">*/}
+            {/*  <Button*/}
+            {/*    variant="contained"*/}
+            {/*    color="secondary"*/}
+            {/*    onClick={handleDeleteSelected}*/}
+            {/*    disabled={selectedOrders.length === 0}*/}
+            {/*    sx={{ margin: "10px" }}*/}
+            {/*  >*/}
+            {/*    주문 취소*/}
+            {/*  </Button>*/}
+            {/*</Box>*/}
           </Table>
         </TableContainer>
       )}

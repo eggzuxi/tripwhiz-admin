@@ -2,7 +2,7 @@ import axios from "axios";
 import { IStoreOwner } from "../types/storeOwner";
 
 // API 기본 URL 설정
-const host = 'http://localhost:8080/api/admin';
+const host = 'http://localhost:8082/api/admin';
 
 // Axios 요청 설정을 중앙화
 const getHeaders = (): Record<string, string> => {

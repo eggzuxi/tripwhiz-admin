@@ -1,5 +1,5 @@
 // 주문 목록에서 사용하는 데이터 타입
-import { IProduct } from './product';
+import { ProductListDTO } from './product';
 
 export interface IOrderList {
   ono: number;
@@ -15,7 +15,7 @@ export interface IOrderList {
 
 // 주문 항목 타입 (주문 상세에 포함됨)
 export interface IOrderItem {
-  product: IProduct[];   // 상품 이름
+  product: ProductListDTO[];   // 상품 이름
   amount: number;
 }
 

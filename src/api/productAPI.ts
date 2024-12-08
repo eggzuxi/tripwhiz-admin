@@ -1,89 +1,214 @@
-import axios from "axios";
+import axios from 'axios';
+import {
+  Category,
+  PageRequestDTO,
+  PageResponseDTO,
+  ProductListDTO,
+  ProductReadDTO,
+  SubCategory,
+  ThemeCategory,
+} from '../types/product';
 
-// const host ='http://10.10.10.214:8082/api/product';
-const host ='http://localhost:8082/api/product';
+const API_BASE_URL = 'http://localhost:8082/api/admin/product';
+const CATEGORY_API_BASE_URL = 'http://localhost:8082/api/categories';
 
-const header = {
+// Access Token 가져오기 함수
+const getAccessToken = (): string | null => {
+  const token = localStorage.getItem('accessToken');
+  console.log('AccessToken:', token); // Access Token 확인 로그
+  return token;
+};
+
+// Axios 인스턴스 생성
+const axiosInstance = axios.create({
   headers: {
-    'Content-Type': 'multipart/form-data', // 파일 전송 형식 지정
+    'Content-Type': 'application/json',
+  },
+});
+
+// Axios 요청 인터셉터로 Authorization 헤더 추가
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = getAccessToken();
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+      console.log('Request Headers:', config.headers); // 요청 헤더 로그
+    }
+    console.log('Request Config:', config); // 전체 요청 정보 로그
+    return config;
+  },
+  (error) => {
+    console.error('Request Interceptor Error:', error); // 인터셉터 오류 로그
+    return Promise.reject(error);
   }
-}
+);
 
-export const getList = async (page: number) => {
-
-  try {
-    const res = await axios.get(`${host}/list?page=${page}`);
-    console.log('API Response for getList:', res.data); // 전체 응답을 콘솔에 출력
-    console.log('DTO List:', res.data.dtoList); // dtoList 부분만 콘솔에 출력
-    return res.data.dtoList;
-  } catch (error) {
-    console.error('Error fetching product list:', error);
+// Axios 응답 인터셉터로 응답 정보 추가
+axiosInstance.interceptors.response.use(
+  (response) => {
+    console.log('Response Received:');
+    console.log(`Status: ${response.status}`);
+    console.log('Response Headers:', response.headers);
+    console.log('Response Data:', response.data);
+    return response;
+  },
+  (error) => {
+    console.error('Response Error:');
+    if (error.response) {
+      console.error(`Status: ${error.response.status}`);
+      console.error('Error Data:', error.response.data);
+      console.error('Response Headers:', error.response.headers);
+    } else {
+      console.error('Error Message:', error.message);
+    }
+    return Promise.reject(error);
   }
+);
 
-};
-
-export const getOne = async (pno: number) => {
-
-  const res = await axios.get(`${host}/read/${pno}`)
-
-  return res.data
-
-}
-
-// 상품 수정 API
-export const updateProduct = async (product: any) => {
-  const res = await axios.put(`${host}/update`, product);
-  return res.data;
-};
-
-// 상품 삭제 API
-export const deleteProduct = async (pno: number) => {
-  const res = await axios.delete(`${host}/delete/${pno}`);
-  return res.data;
-};
-
-export const postAdd = async (productData: FormData) => {
+// 상품 관련 API
+export const fetchProducts = async (
+  params: PageRequestDTO
+): Promise<{ dtoList: ProductListDTO[] }> => {
+  console.log('Fetching Products with params:', params);
   try {
-    const res = await axios.post(`${host}/add`, productData); // 헤더 생략
-    console.log('API Response:', res.data);
-    return res.data;
+    const response = await axiosInstance.get(`${API_BASE_URL}/list`, { params });
+    console.log('API Response:', response.data);
+    return response.data;
   } catch (error) {
-    console.error('Failed to add product:', error);
+    console.error('Error Fetching Products:', error);
     throw error;
   }
 };
 
-// export const postAdd = async (productData: any) => {
-//   try {
-//     const res = await axios.post(`${host}/add`, productData, {
-//       headers: { 'Content-Type': 'application/json' },
-//     });
-//     console.log('API Response:', res.data);
-//     return res.data;
-//   } catch (error) {
-//     console.error('Failed to add product:', error);
-//     throw error;
-//   }
-// };
-
-// api/categoryAPI.ts
-export const getCategories = async () => {
+export const fetchProductById = async (pno: number): Promise<ProductReadDTO> => {
+  console.log('Fetching Product by ID:', pno);
   try {
-    const response = await fetch('/api/categories'); // 카테고리 API 엔드포인트
-    const data = await response.json();
-    console.log('API Response for getCategories:', data);
-    return data;
+    const response = await axiosInstance.get(`${API_BASE_URL}/read/native/${pno}`);
+    console.log('Product Data:', response.data);
+    return response.data;
   } catch (error) {
-    console.error('상위 카테고리 로드 실패', error);
+    console.error('Error Fetching Product by ID:', error);
+    throw error;
   }
 };
 
-export const getSubCategories = async (categoryId: number) => {
+// createProduct 수정
+export const createProduct = async (
+  productListDTO: ProductListDTO,
+  imageFiles?: File[]
+): Promise<number> => {
+  const formData = new FormData();
+  formData.append('productListDTO', JSON.stringify(productListDTO));
+
+  if (imageFiles) {
+    imageFiles.forEach((file) => {
+      formData.append('imageFiles', file);
+    });
+  }
+
+  console.log('FormData being sent:');
+  formData.forEach((value, key) => {
+    if (value instanceof File) {
+      console.log(`Key: ${key}, File Name: ${value.name}, Size: ${value.size}`);
+    } else {
+      console.log(`Key: ${key}, Value: ${value}`);
+    }
+  });
+
   try {
-    const response = await fetch(`/api/subcategories/${categoryId}`); // 하위 카테고리 API 엔드포인트
-    const data = await response.json();
-    return data;
+    const response = await axiosInstance.post(`${API_BASE_URL}/add`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    console.log('Create Product Response:', response.data);
+    return response.data;
   } catch (error) {
-    console.error('하위 카테고리 로드 실패', error);
+    console.error('Error Creating Product:', error);
+    if (error.response) {
+      console.error('Response Error Details:');
+      console.error('Status:', error.response.status);
+      console.error('Data:', error.response.data);
+    } else if (error.request) {
+      console.error('Request Error:', error.request);
+    } else {
+      console.error('Other Error:', error.message);
+    }
+    throw error;
+  }
+};
+
+export const updateProduct = async (
+  pno: number,
+  themeCategoryId: number,
+  productListDTO: ProductListDTO,
+  imageFiles?: File[]
+): Promise<number> => {
+  const formData = new FormData();
+  formData.append('productListDTO', JSON.stringify(productListDTO));
+  if (imageFiles) {
+    imageFiles.forEach((file) => {
+      formData.append('imageFiles', file);
+    });
+  }
+
+  console.log('Updating Product with FormData:');
+  formData.forEach((value, key) => {
+    if (value instanceof File) {
+      console.log(`Key: ${key}, File Name: ${value.name}, Size: ${value.size}`);
+    } else {
+      console.log(`Key: ${key}, Value: ${value}`);
+    }
+  });
+
+  try {
+    const response = await axiosInstance.put(
+      `${API_BASE_URL}/update/${pno}/${themeCategoryId}`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
+    console.log('Update Product Response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error Updating Product:', error);
+    throw error;
+  }
+};
+
+// 카테고리 관련 API
+export const fetchCategories = async (): Promise<Category[]> => {
+  console.log('Fetching Categories');
+  try {
+    const response = await axiosInstance.get(`${CATEGORY_API_BASE_URL}`);
+    console.log('Categories Data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error Fetching Categories:', error);
+    throw error;
+  }
+};
+
+export const fetchSubCategories = async (cno: number): Promise<SubCategory[]> => {
+  console.log('Fetching SubCategories for Category ID:', cno);
+  try {
+    const response = await axiosInstance.get(`${CATEGORY_API_BASE_URL}/${cno}/subcategories`);
+    console.log('SubCategories Data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error Fetching SubCategories:', error);
+    throw error;
+  }
+};
+
+// 테마 관련 API
+export const fetchThemeCategories = async (): Promise<ThemeCategory[]> => {
+  console.log('Fetching Theme Categories');
+  try {
+    const response = await axiosInstance.get(`${API_BASE_URL}/themes`);
+    console.log('Theme Categories Data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error Fetching Theme Categories:', error);
+    throw error;
   }
 };

@@ -50,7 +50,7 @@ export interface ProductListDTO {
   pdesc: string; // 상품 설명
   category: Category; // 상위 카테고리
   subCategory: SubCategory; // 하위 카테고리
-  tnos: number[]; // 테마 카테고리 ID 배열
+  tnos: ProductTheme[]; // 테마 카테고리 ID 배열
   attachFiles?: AttachFile[]; // 첨부 파일 목록 (optional)
 }
 

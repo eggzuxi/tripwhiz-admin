@@ -1,123 +1,190 @@
-import React, { useState, useEffect } from 'react';
-import { Category, SubCategory, ProductListDTO, ThemeCategory } from '../../types/product';
-import { fetchCategories, fetchSubCategories, fetchThemes, addProduct } from '../../api/productAPI';
+import React, { useEffect, useState } from 'react';
+import { Category, ProductListDTO, SubCategory, ThemeCategory } from '../../types/product';
+import {
+  createProduct,
+  fetchCategories,
+  fetchSubCategories,
+  fetchThemeCategories,
+} from '../../api/productAPI';
 
-const ProductAddComponent: React.FC = () => {
+const AddComponent: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
-  const [themes, setThemes] = useState<ThemeCategory[]>([]);
-  const [selectedThemes, setSelectedThemes] = useState<number[]>([]); // 테마 ID 저장
-  const [newProduct, setNewProduct] = useState<ProductListDTO>({
-    pno: 0,
+  const [themeCategories, setThemeCategories] = useState<ThemeCategory[]>([]);
+  const [product, setProduct] = useState<ProductListDTO>({
     pname: '',
-    pdesc: '',
     price: 0,
-    cno: 0,
-    scno: 0,
+    pdesc: '',
+    category: {} as Category,
+    subCategory: {} as SubCategory,
+    tnos: [],
+    attachFiles: [],
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  // 카테고리 데이터 가져오기
+  // Log function for debugging
+  const logState = () => {
+    console.log('Product State:', product);
+    console.log('Image Files:', imageFiles);
+    console.log('Categories:', categories);
+    console.log('SubCategories:', subCategories);
+    console.log('Theme Categories:', themeCategories);
+  };
+
   useEffect(() => {
-    fetchCategories().then(setCategories);
-    fetchThemes().then(setThemes); // 테마 데이터 가져오기
+    // Load categories
+    const loadCategories = async () => {
+      try {
+        console.log('Fetching categories...');
+        const categoryData = await fetchCategories();
+        setCategories(categoryData);
+        console.log('Fetched Categories:', categoryData);
+      } catch (err) {
+        console.error('Failed to load categories', err);
+        setError('Failed to load categories.');
+      }
+    };
+
+    // Load theme categories
+    const loadThemeCategories = async () => {
+      try {
+        console.log('Fetching theme categories...');
+        const themeData = await fetchThemeCategories();
+        setThemeCategories(themeData);
+        console.log('Fetched Theme Categories:', themeData);
+      } catch (err) {
+        console.error('Failed to load theme categories', err);
+        setError('Failed to load theme categories.');
+      }
+    };
+
+    loadCategories();
+    loadThemeCategories();
   }, []);
 
-  const handleCategoryChange = (cno: number) => {
-    setNewProduct({ ...newProduct, cno, scno: 0 });
-    fetchSubCategories(cno).then(setSubCategories);
+  const handleCategoryChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCategory = categories.find(
+      (category) => category.cno === parseInt(e.target.value, 10)
+    );
+
+    console.log('Selected Category:', selectedCategory);
+
+    setProduct({ ...product, category: selectedCategory || ({} as Category), subCategory: {} as SubCategory });
+    setSubCategories([]);
+
+    if (selectedCategory) {
+      try {
+        console.log(`Fetching subcategories for category ID: ${selectedCategory.cno}`);
+        const subCategoryData = await fetchSubCategories(selectedCategory.cno);
+        setSubCategories(subCategoryData);
+        console.log('Fetched SubCategories:', subCategoryData);
+      } catch (err) {
+        console.error('Failed to load subcategories', err);
+        setError('Failed to load subcategories.');
+      }
+    }
+  };
+
+  const handleSubCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedSubCategory = subCategories.find(
+      (subCategory) => subCategory.scno === parseInt(e.target.value, 10)
+    );
+    console.log('Selected SubCategory:', selectedSubCategory);
+
+    setProduct({ ...product, subCategory: selectedSubCategory || ({} as SubCategory) });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    console.log(`Input Changed - ${name}:`, value);
+    setProduct({ ...product, [name]: value });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setImageFiles(Array.from(e.target.files));
+      const files = Array.from(e.target.files);
+      console.log('Files Selected:', files);
+      setImageFiles(files);
     }
   };
 
-  const handleThemeToggle = (tno: number) => {
-    if (selectedThemes.includes(tno)) {
-      setSelectedThemes(selectedThemes.filter((id) => id !== tno));
-    } else {
-      setSelectedThemes([...selectedThemes, tno]);
-    }
+  const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedThemes = Array.from(e.target.selectedOptions).map((option) => parseInt(option.value, 10));
+    console.log('Selected Themes:', selectedThemes);
+    setProduct({ ...product, tnos: selectedThemes });
   };
 
-  const handleAddProduct = () => {
-    const productData = {
-      ...newProduct,
-      themes: selectedThemes, // 선택한 테마 ID 리스트 추가
-    };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Submitting Form with Product:', product);
+    console.log('Image Files:', imageFiles);
+    logState();
 
-    addProduct(productData, imageFiles).then(() => {
-      alert('Product added successfully');
-    });
+    try {
+      const response = await createProduct(product, imageFiles);
+      console.log('Product Created with ID:', response);
+      alert(`Product created successfully with ID: ${response}`);
+    } catch (err) {
+      console.error('Error creating product:', err);
+      setError('Failed to create product.');
+    }
   };
 
   return (
     <div>
-      <h1>Add Product</h1>
-      <input
-        type="text"
-        name="pname"
-        placeholder="Product Name"
-        onChange={handleInputChange}
-      />
-      <textarea
-        name="pdesc"
-        placeholder="Product Description"
-        onChange={handleInputChange}
-      />
-      <input
-        type="number"
-        name="price"
-        placeholder="Price"
-        onChange={handleInputChange}
-      />
-      <select onChange={(e) => handleCategoryChange(Number(e.target.value))}>
-        <option value="">Select Category</option>
-        {categories.map((cat) => (
-          <option key={cat.cno} value={cat.cno}>
-            {cat.cname}
-          </option>
-        ))}
-      </select>
-      {subCategories.length > 0 && (
-        <select onChange={(e) => setNewProduct({ ...newProduct, scno: Number(e.target.value) })}>
-          <option value="">Select Subcategory</option>
-          {subCategories.map((sub) => (
-            <option key={sub.scno} value={sub.scno}>
-              {sub.sname}
+      <h2>Add Product</h2>
+      {error && <div className="text-red-500">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="pname"
+          placeholder="Product Name"
+          onChange={handleInputChange}
+        />
+        <input
+          type="number"
+          name="price"
+          placeholder="Price"
+          onChange={handleInputChange}
+        />
+        <textarea
+          name="pdesc"
+          placeholder="Description"
+          onChange={handleInputChange}
+        />
+        <select name="category" onChange={handleCategoryChange}>
+          <option value="">Select Category</option>
+          {categories.map((category) => (
+            <option key={category.cno} value={category.cno}>
+              {category.cname}
             </option>
           ))}
         </select>
-      )}
-
-      {/* 테마 선택 */}
-      <h3>Select Themes</h3>
-      {themes.length > 0 ? (
-        themes.map((theme) => (
-          <label key={theme.tno} style={{ display: 'block', margin: '5px 0' }}>
-            <input
-              type="checkbox"
-              value={theme.tno}
-              checked={selectedThemes.includes(theme.tno)}
-              onChange={() => handleThemeToggle(theme.tno)}
-            />
-            {theme.tname}
-          </label>
-        ))
-      ) : (
-        <p>No themes available</p>
-      )}
-
-      <input type="file" multiple onChange={handleFileChange} />
-      <button onClick={handleAddProduct}>Add Product</button>
+        <select
+          name="subCategory"
+          onChange={handleSubCategoryChange}
+          disabled={!subCategories.length}
+        >
+          <option value="">Select SubCategory</option>
+          {subCategories.map((subCategory) => (
+            <option key={subCategory.scno} value={subCategory.scno}>
+              {subCategory.sname}
+            </option>
+          ))}
+        </select>
+        <select multiple onChange={handleThemeChange}>
+          {themeCategories.map((theme) => (
+            <option key={theme.tno} value={theme.tno}>
+              {theme.tname}
+            </option>
+          ))}
+        </select>
+        <input type="file" multiple onChange={handleFileChange} />
+        <button type="submit">Add Product</button>
+      </form>
     </div>
   );
 };
 
-export default ProductAddComponent;
+export default AddComponent;

@@ -1,95 +1,185 @@
 import React, { useState, useEffect } from 'react';
-import { Category, ProductListDTO, SubCategory } from '../../types/product';
-import { fetchCategories, fetchProductById, fetchSubCategories, modifyProduct } from '../../api/productAPI';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ProductListDTO, ProductReadDTO, Category, SubCategory } from '../../types/product';
+import { fetchProductById, updateProduct, fetchCategories, fetchSubCategories } from '../../api/productAPI';
 
-const ProductModifyComponent: React.FC<{ productId: number }> = ({ productId }) => {
-  const [product, setProduct] = useState<ProductListDTO | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
+const ProductModifyComponent: React.FC = () => {
+  const { pno } = useParams<{ pno: string }>();
+  const navigate = useNavigate();
+
+  // 상태 관리
+  const [product, setProduct] = useState<ProductReadDTO | null>(null);
+  const [productListDTO, setProductListDTO] = useState<ProductListDTO | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[] | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]); // 카테고리 목록
+  const [subCategories, setSubCategories] = useState<SubCategory[]>([]); // 서브카테고리 목록
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // 카테고리 목록을 로드하는 함수
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const categoryData = await fetchCategories();
+        setCategories(categoryData);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  // 카테고리 변경 시 서브카테고리 목록 로드
+  useEffect(() => {
+    if (productListDTO?.category?.cno) {
+      const loadSubCategories = async () => {
+        try {
+          const subCategoryData = await fetchSubCategories(productListDTO.category.cno);
+          setSubCategories(subCategoryData);
+        } catch (error) {
+          console.error('Error fetching subcategories:', error);
+        }
+      };
+
+      loadSubCategories();
+    }
+  }, [productListDTO?.category?.cno]);
 
   useEffect(() => {
-    fetchProductById(productId).then(setProduct);
-    fetchCategories().then(setCategories);
-  }, [productId]);
+    let isMounted = true; // 컴포넌트가 마운트 되어 있는지 확인하는 변수
 
-  const handleCategoryChange = (cno: number) => {
-    if (product) {
-      setProduct({ ...product, cno, scno: 0 });
-      fetchSubCategories(cno).then(setSubCategories);
+    if (!pno) return;
+
+    const loadProduct = async (pno: number) => {
+      try {
+        const productData = await fetchProductById(pno);
+        if (isMounted) {
+          setProduct(productData);
+          setProductListDTO({
+            pname: productData.pname,
+            pdesc: productData.pdesc,
+            price: productData.price,
+            category: productData.category || { cno: 0, cname: '' }, // 초기값 설정
+            subCategory: productData.subCategory || { scno: 0, sname: '' }, // 초기값 설정
+            tnos: [], // 테마 카테고리는 필요시 수정
+          });
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error fetching product:', error);
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadProduct(Number(pno));
+
+    return () => {
+      isMounted = false;
+    };
+  }, [pno]);
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setImageFiles(Array.from(event.target.files));
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (product) {
-      setProduct({ ...product, [e.target.name]: e.target.value });
+  const handleUpdateProduct = async () => {
+    if (productListDTO) {
+      try {
+        const updatedProductPno = await updateProduct(Number(pno), productListDTO, imageFiles);
+        console.log('Product updated:', updatedProductPno);
+        // 수정된 후 상품 목록 페이지로 리디렉션
+        navigate('/product/list'); // 상품 목록 페이지로 이동
+      } catch (error) {
+        console.error('Error updating product:', error);
+      }
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setImageFiles(Array.from(e.target.files));
-    }
-  };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-  const handleModifyProduct = () => {
-    if (product) {
-      modifyProduct(productId, product, imageFiles).then(() => {
-        alert('Product modified successfully');
-      });
-    }
-  };
+  if (!product) {
+    return <div>Product not found</div>;
+  }
 
   return (
     <div>
-      {product && (
-        <>
-          <h1>Modify Product</h1>
+      <h1>Modify Product</h1>
+      <form onSubmit={(e) => e.preventDefault()}>
+        <div>
+          <label>Product Name</label>
           <input
             type="text"
-            name="pname"
-            placeholder="Product Name"
-            value={product.pname}
-            onChange={handleInputChange}
+            value={productListDTO?.pname || ''}
+            onChange={(e) => setProductListDTO({ ...productListDTO!, pname: e.target.value })}
           />
+        </div>
+        <div>
+          <label>Product Description</label>
           <textarea
-            name="pdesc"
-            placeholder="Product Description"
-            value={product.pdesc}
-            onChange={handleInputChange}
+            value={productListDTO?.pdesc || ''}
+            onChange={(e) => setProductListDTO({ ...productListDTO!, pdesc: e.target.value })}
           />
+        </div>
+        <div>
+          <label>Price</label>
           <input
             type="number"
-            name="price"
-            placeholder="Price"
-            value={product.price}
-            onChange={handleInputChange}
+            value={productListDTO?.price || ''}
+            onChange={(e) => setProductListDTO({ ...productListDTO!, price: +e.target.value })}
           />
-          <select onChange={(e) => handleCategoryChange(Number(e.target.value))} value={product.cno}>
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat.cno} value={cat.cno}>
-                {cat.cname}
+        </div>
+        <div>
+          <label>Category</label>
+          <select
+            value={productListDTO?.category?.cno || ''}
+            onChange={(e) =>
+              setProductListDTO({
+                ...productListDTO!,
+                category: categories.find((category) => category.cno === +e.target.value) || { cno: 0, cname: '' },
+              })
+            }
+          >
+            <option value="">Select a category</option>
+            {categories.map((category) => (
+              <option key={category.cno} value={category.cno}>
+                {category.cname}
               </option>
             ))}
           </select>
-          {subCategories.length > 0 && (
-            <select
-              onChange={(e) => setProduct({ ...product, scno: Number(e.target.value) })}
-              value={product.scno}
-            >
-              <option value="">Select Subcategory</option>
-              {subCategories.map((sub) => (
-                <option key={sub.scno} value={sub.scno}>
-                  {sub.sname}
-                </option>
-              ))}
-            </select>
-          )}
-          <input type="file" multiple onChange={handleFileChange} />
-          <button onClick={handleModifyProduct}>Modify Product</button>
-        </>
-      )}
+        </div>
+        <div>
+          <label>SubCategory</label>
+          <select
+            value={productListDTO?.subCategory?.scno || ''}
+            onChange={(e) =>
+              setProductListDTO({
+                ...productListDTO!,
+                subCategory: subCategories.find((subCategory) => subCategory.scno === +e.target.value) || { scno: 0, sname: '' },
+              })
+            }
+          >
+            <option value="">Select a subcategory</option>
+            {subCategories.map((subCategory) => (
+              <option key={subCategory.scno} value={subCategory.scno}>
+                {subCategory.sname}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label>Images</label>
+          <input type="file" multiple onChange={handleImageChange} />
+        </div>
+        <div>
+          <button type="button" onClick={handleUpdateProduct}>
+            Update Product
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

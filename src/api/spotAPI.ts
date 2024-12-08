@@ -1,40 +1,71 @@
-import axios from "axios";
-import { PageResponseDTO, Spot } from '../types/spot';
+import jwtAxios from "../util/jwtUtil";
+import { Spot, PageResponseDTO } from "../types/spot";
 
-const host = "http://localhost:8080/api/spot";
+export const addSpot = async (data: Spot) => {
+  try {
+    const response = await jwtAxios.post('/admin/spot/add', data);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to add spot:', error);
+    throw error;
+  }
+};
 
-// Spot 목록 조회 (페이지네이션 적용)
-export const getSpots = (
-  page: number,
-  size: number
-): Promise<PageResponseDTO<Spot>> => {
-  return axios
-    .get<PageResponseDTO<Spot>>(`${host}/list`, {
+export const getSpotById = async (spno: number): Promise<Spot> => {
+  try {
+    const response = await jwtAxios.get(`/admin/spot/read/${spno}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch spot:', error);
+    throw error;
+  }
+};
+
+export const getSpots = async (page: number, size: number): Promise<PageResponseDTO<Spot>> => {
+  try {
+    const response = await jwtAxios.get('/admin/spot/list', {
       params: { page, size },
-    })
-    .then((response) => response.data);
+    });
+
+    // 응답 구조를 확인하고 필요한 데이터를 반환
+    if (response.data && Array.isArray(response.data.dtoList)) {
+      return response.data;
+    } else if (Array.isArray(response.data)) {
+      // 단순 배열 형태의 응답 처리
+      return {
+        dtoList: response.data,
+        pageNumList: [],
+        prev: false,
+        next: false,
+        totalCount: response.data.length,
+        totalPage: 1,
+        current: 1,
+      };
+    } else {
+      throw new Error("Invalid data structure");
+    }
+  } catch (error) {
+    console.error('Failed to fetch spots:', error);
+    throw error;
+  }
 };
 
-// 단일 Spot 조회
-export const getSpotById = (spno: number): Promise<Spot> => {
-  return axios
-    .get<Spot>(`${host}/read/${spno}`)
-    .then((response) => response.data);
+export const updateSpot = async (spno: number, data: Spot) => {
+  try {
+    const response = await jwtAxios.put(`/admin/spot/update/${spno}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update spot:', error);
+    throw error;
+  }
 };
 
-// Spot 추가
-export const addSpot = (spot: Partial<Spot>): Promise<Spot> => {
-  return axios
-    .post<Spot>(`${host}/add`, spot)
-    .then((response) => response.data);
-};
-
-// Spot 수정
-export const updateSpot = (spno: number, spot: Partial<Spot>): Promise<void> => {
-  return axios.put(`${host}/update/${spno}`, spot).then((response) => response.data);
-};
-
-// Spot 소프트 삭제
-export const softDeleteSpot = (spno: number): Promise<void> => {
-  return axios.delete(`${host}/delete/${spno}`).then((response) => response.data);
+export const deleteSpot = async (spno: number) => {
+  try {
+    const response = await jwtAxios.delete(`/admin/spot/delete/${spno}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to delete spot:', error);
+    throw error;
+  }
 };

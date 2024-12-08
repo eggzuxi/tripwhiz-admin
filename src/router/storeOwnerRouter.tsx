@@ -5,25 +5,25 @@ import { RouteObject } from 'react-router';
 
 // Lazy 로드 컴포넌트 로더
 const Loader = (Component: React.FC) => (props: any) =>
-    (
-        <Suspense fallback={<SuspenseLoader />}>
-            <Component {...props} />
-        </Suspense>
-    );
+  (
+    <Suspense fallback={<SuspenseLoader />}>
+        <Component {...props} />
+    </Suspense>
+  );
 
 // StoreOwner 관련 페이지 Lazy 로드
 const CreateStoreOwner = Loader(
-    lazy(() => import('../admin/pages/CreateStoreOwnerPage'))
+  lazy(() => import('../admin/pages/CreateStoreOwnerPage'))
 );
 
 const ListStoreOwner = Loader(
-    lazy(() => import('../admin/pages/ListManagerPage')) // 'ListManagerPage'를 재사용
+  lazy(() => import('../admin/pages/ListManagerPage')) // 'ListManagerPage'를 재사용
 );
 
 // StoreOwner 라우터 설정
 const storeOwnerRouter: RouteObject[] = [
     {
-        path: '/storeOwner',
+        path: 'storeOwner', // 상대 경로로 수정
         children: [
             {
                 path: '',
@@ -36,7 +36,7 @@ const storeOwnerRouter: RouteObject[] = [
             {
                 path: 'create',
                 element: <CreateStoreOwner /> // 점주 생성 페이지
-            },
+            }
         ]
     }
 ];

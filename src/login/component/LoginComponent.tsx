@@ -1,138 +1,119 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // React Router 사용
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useAuthStore from "../../AuthState";
+import { login, LoginResponse } from "../../api/authAPI";
+import { IAdmin } from "../../types/admin";
+import { IStoreOwner } from "../../types/storeOwner";
 
 function LoginComponent() {
-    const [credentials, setCredentials] = useState({ id: '', pw: '', role: 'ADMIN' }); // role 추가
-    const [error, setError] = useState('');
-    const navigate = useNavigate(); // useNavigate 훅으로 리다이렉트 처리
+  const [credentials, setCredentials] = useState({ id: "", pw: "", role: "" });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { setAdmin, setStoreowner } = useAuthStore();
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setCredentials({
-            ...credentials,
-            [e.target.name]: e.target.value,
-        });
-    };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setCredentials({
+      ...credentials,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-        try {
-            const response = await fetch('http://localhost:8082/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(credentials),
-                credentials: 'include', // 쿠키를 함께 보낼 경우 사용
-            });
+    try {
+      const data: LoginResponse = await login(credentials.id, credentials.pw, credentials.role);
 
-            if (response.ok) {
-                const text = await response.text();
-                if (text) {
-                    try {
-                        const data = JSON.parse(text);
-                        if (data.accessToken && data.refreshToken) {
-                            // accessToken과 refreshToken을 localStorage에 저장
-                            localStorage.setItem('accessToken', data.accessToken);
-                            localStorage.setItem('refreshToken', data.refreshToken);
-
-                            alert('Login successful!');
-                            navigate('/'); // 로그인 성공 시 메인 페이지로 이동
-                        } else {
-                            setError('Token not found in server response.');
-                        }
-                    } catch {
-                        setError('Failed to parse server response.');
-                    }
-                } else {
-                    setError('Server returned an empty response.');
-                }
-            } else {
-                const errorText = await response.text();
-                try {
-                    const errorData = JSON.parse(errorText);
-                    setError(errorData.msg || 'Login failed');
-                } catch {
-                    setError(errorText || 'Login failed');
-                }
-            }
-        } catch (err) {
-            console.error('Error during fetch:', err);
-            setError('Network error: Unable to connect to the server.');
+      if (data.accessToken && data.refreshToken) {
+        if (credentials.role === "ADMIN") {
+          const adminData = data as IAdmin;
+          setAdmin(adminData.aname, adminData.id, adminData.accessToken, adminData.refreshToken);
+        } else if (credentials.role === "STOREOWNER") {
+          const storeOwnerData = data as IStoreOwner;
+          setStoreowner(storeOwnerData.sname, storeOwnerData.id, storeOwnerData.accessToken, storeOwnerData.refreshToken);
         }
-    };
+        alert("Login successful!");
+        navigate("/app");
+      } else {
+        throw new Error("Invalid response from server");
+      }
+    } catch (err: any) {
+      setError(err.message || "Login failed");
+    }
+  };
 
-    const handleSignUp = () => {
-        navigate('/signup'); // 회원가입 페이지로 이동
-    };
+  const handleSignUp = () => {
+    navigate("/signup");
+  };
 
-    return (
-        <div style={{ maxWidth: '400px', margin: '0 auto', textAlign: 'center' }}>
-            <h2>Login</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '1rem' }}>
-                    <input
-                        type="text"
-                        name="id"
-                        value={credentials.id}
-                        onChange={handleChange}
-                        placeholder="ID"
-                        style={{ padding: '0.5rem', width: '100%' }}
-                        required
-                    />
-                </div>
-                <div style={{ marginBottom: '1rem' }}>
-                    <input
-                        type="password"
-                        name="pw"
-                        value={credentials.pw}
-                        onChange={handleChange}
-                        placeholder="Password"
-                        style={{ padding: '0.5rem', width: '100%' }}
-                        required
-                    />
-                </div>
-                <div style={{ marginBottom: '1rem' }}>
-                    <select
-                        name="role"
-                        value={credentials.role}
-                        onChange={handleChange}
-                        style={{ padding: '0.5rem', width: '100%' }}
-                        required
-                    >
-                        <option value="ADMIN">Admin</option>
-                        <option value="STOREOWNER">Store Owner</option>
-                    </select>
-                </div>
-                <button
-                    type="submit"
-                    style={{
-                        padding: '0.5rem 1rem',
-                        background: 'blue',
-                        color: 'white',
-                        border: 'none',
-                        cursor: 'pointer',
-                        marginBottom: '1rem',
-                    }}
-                >
-                    Login
-                </button>
-            </form>
-            <button
-                onClick={handleSignUp}
-                style={{
-                    padding: '0.5rem 1rem',
-                    background: 'gray',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                }}
-            >
-                Sign Up
-            </button>
+  return (
+    <div style={{ maxWidth: "400px", margin: "0 auto", textAlign: "center" }}>
+      <h2>Login</h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: "1rem" }}>
+          <input
+            type="text"
+            name="id"
+            value={credentials.id}
+            onChange={handleChange}
+            placeholder="ID"
+            style={{ padding: "0.5rem", width: "100%" }}
+            required
+          />
         </div>
-    );
+        <div style={{ marginBottom: "1rem" }}>
+          <input
+            type="password"
+            name="pw"
+            value={credentials.pw}
+            onChange={handleChange}
+            placeholder="Password"
+            style={{ padding: "0.5rem", width: "100%" }}
+            required
+          />
+        </div>
+        <div style={{ marginBottom: "1rem" }}>
+          <select
+            name="role"
+            value={credentials.role}
+            onChange={handleChange}
+            style={{ padding: "0.5rem", width: "100%" }}
+            required
+          >
+            <option value="ADMIN">Admin</option>
+            <option value="STOREOWNER">Store Owner</option>
+          </select>
+        </div>
+        <button
+          type="submit"
+          style={{
+            padding: "0.5rem 1rem",
+            background: "blue",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+            marginBottom: "1rem",
+          }}
+        >
+          Login
+        </button>
+      </form>
+      <button
+        onClick={handleSignUp}
+        style={{
+          padding: "0.5rem 1rem",
+          background: "green",
+          color: "white",
+          border: "none",
+          cursor: "pointer",
+          marginBottom: "1rem",
+        }}
+      >
+        Sign Up
+      </button>
+    </div>
+  );
 }
 
 export default LoginComponent;

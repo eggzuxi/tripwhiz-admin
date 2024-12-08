@@ -1,84 +1,71 @@
-import axios from "axios";
-import { Spot } from "../types/spot";
+import jwtAxios from "../util/jwtUtil";
+import { Spot, PageResponseDTO } from "../types/spot";
 
-// API 기본 URL 설정
-const host = "http://localhost:8082/api/spot";
-
-// Axios 요청 설정을 중앙화
-const getHeaders = (): Record<string, string> => {
-  const accessToken = localStorage.getItem("accessToken");
-  return {
-    "Content-Type": "application/json",
-    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-  };
-};
-
-// 공통 에러 처리 함수
-const handleError = (error: any, action: string): never => {
-  if (error.response) {
-    console.error(`${action} 오류:`, error.response.data);
-    throw new Error(`${action} 중 오류가 발생했습니다: ${error.response.data.message || error.response.data}`);
-  } else if (error.request) {
-    console.error(`${action} 오류 (No response):`, error.request);
-    throw new Error("서버 응답이 없습니다. 서버를 확인해주세요.");
-  } else {
-    console.error(`${action} 오류 (Request setup):`, error.message);
-    throw new Error(`요청 설정 중 오류가 발생했습니다: ${error.message}`);
-  }
-};
-
-// Spot 생성
-export const addSpot = async (spot: Partial<Spot>): Promise<Spot> => {
+export const addSpot = async (data: Spot) => {
   try {
-    const res = await axios.post(`${host}/add`, spot, { headers: getHeaders() });
-    console.log("Spot 생성 응답:", res.data);
-    return res.data;
+    const response = await jwtAxios.post('/admin/spot/add', data);
+    return response.data;
   } catch (error) {
-    handleError(error, "Spot 생성");
+    console.error('Failed to add spot:', error);
+    throw error;
   }
 };
 
-// Spot 목록 가져오기 (페이지네이션)
-export const getSpots = async (page: number, size: number): Promise<Spot[]> => {
-  try {
-    const res = await axios.get(`${host}/list`, {
-      headers: getHeaders(),
-      params: { page, size },
-    });
-    console.log("Spot 목록 응답:", res.data);
-    return res.data || [];
-  } catch (error) {
-    handleError(error, "Spot 목록 로드");
-  }
-};
-
-// 단일 Spot 가져오기
 export const getSpotById = async (spno: number): Promise<Spot> => {
   try {
-    const res = await axios.get(`${host}/read/${spno}`, { headers: getHeaders() });
-    console.log("단일 Spot 응답:", res.data);
-    return res.data;
+    const response = await jwtAxios.get(`/admin/spot/read/${spno}`);
+    return response.data;
   } catch (error) {
-    handleError(error, "단일 Spot 로드");
+    console.error('Failed to fetch spot:', error);
+    throw error;
   }
 };
 
-// Spot 수정
-export const updateSpot = async (spno: number, spot: Partial<Spot>): Promise<void> => {
+export const getSpots = async (page: number, size: number): Promise<PageResponseDTO<Spot>> => {
   try {
-    const res = await axios.put(`${host}/update/${spno}`, spot, { headers: getHeaders() });
-    console.log("Spot 수정 응답 상태:", res.status);
+    const response = await jwtAxios.get('/admin/spot/list', {
+      params: { page, size },
+    });
+
+    // 응답 구조를 확인하고 필요한 데이터를 반환
+    if (response.data && Array.isArray(response.data.dtoList)) {
+      return response.data;
+    } else if (Array.isArray(response.data)) {
+      // 단순 배열 형태의 응답 처리
+      return {
+        dtoList: response.data,
+        pageNumList: [],
+        prev: false,
+        next: false,
+        totalCount: response.data.length,
+        totalPage: 1,
+        current: 1,
+      };
+    } else {
+      throw new Error("Invalid data structure");
+    }
   } catch (error) {
-    handleError(error, "Spot 수정");
+    console.error('Failed to fetch spots:', error);
+    throw error;
   }
 };
 
-// Spot 삭제
-export const deleteSpot = async (spno: number): Promise<void> => {
+export const updateSpot = async (spno: number, data: Spot) => {
   try {
-    const res = await axios.delete(`${host}/delete/${spno}`, { headers: getHeaders() });
-    console.log("Spot 삭제 응답 상태:", res.status);
+    const response = await jwtAxios.put(`/admin/spot/update/${spno}`, data);
+    return response.data;
   } catch (error) {
-    handleError(error, "Spot 삭제");
+    console.error('Failed to update spot:', error);
+    throw error;
+  }
+};
+
+export const deleteSpot = async (spno: number) => {
+  try {
+    const response = await jwtAxios.delete(`/admin/spot/delete/${spno}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to delete spot:', error);
+    throw error;
   }
 };

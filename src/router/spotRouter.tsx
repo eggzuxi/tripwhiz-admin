@@ -21,9 +21,6 @@ const SpotAdd = Loader(
   lazy(() => import('../spot/pages/SpotAddPage'))
 );
 
-const SpotModi = Loader(
-  lazy(() => import('../spot/pages/SpotModifyPage'))
-);
 
 
 const spotRouter: RouteObject[] = [
@@ -46,10 +43,7 @@ const spotRouter: RouteObject[] = [
         path: 'add',
         element: <SpotAdd />
       },
-      {
-        path: 'modi/:spno',
-        element: <SpotModi />
-      }
+
     ]
   }
 ];

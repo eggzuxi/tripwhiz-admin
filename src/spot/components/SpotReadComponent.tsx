@@ -11,7 +11,7 @@ const SpotReadComponent = () => {
   const [updatedSpot, setUpdatedSpot] = useState({
     spotname: "",
     address: "",
-    tel: "",
+    // tel: "",
     sno: 0,
     sname: "",
   });
@@ -27,7 +27,7 @@ const SpotReadComponent = () => {
         setUpdatedSpot({
           spotname: data.spotname,
           address: data.address,
-          tel: data.tel,
+          // tel: data.tel,
           sno: data.sno,
           sname: data.sname,
         });
@@ -48,7 +48,7 @@ const SpotReadComponent = () => {
       ...spot,
       spotname: updatedSpot.spotname,
       address: updatedSpot.address,
-      tel: updatedSpot.tel,
+      // tel: updatedSpot.tel,
       sno: updatedSpot.sno,
       sname: updatedSpot.sname,
     };
@@ -108,12 +108,12 @@ const SpotReadComponent = () => {
 
           <Divider />
 
-          <Typography variant="h6" gutterBottom mt={2}>
-            전화번호:
-          </Typography>
-          <Typography variant="body1" mb={2}>
-            {spot.tel}
-          </Typography>
+          {/*<Typography variant="h6" gutterBottom mt={2}>*/}
+          {/*  전화번호:*/}
+          {/*</Typography>*/}
+          {/*<Typography variant="body1" mb={2}>*/}
+          {/*  {spot.tel}*/}
+          {/*</Typography>*/}
 
           <Divider />
 
@@ -162,15 +162,15 @@ const SpotReadComponent = () => {
             fullWidth
             margin="normal"
           />
-          <TextField
-            label="전화번호"
-            value={updatedSpot.tel}
-            onChange={(e) =>
-              setUpdatedSpot({ ...updatedSpot, tel: e.target.value })
-            }
-            fullWidth
-            margin="normal"
-          />
+          {/*<TextField*/}
+          {/*  label="전화번호"*/}
+          {/*  value={updatedSpot.tel}*/}
+          {/*  onChange={(e) =>*/}
+          {/*    setUpdatedSpot({ ...updatedSpot, tel: e.target.value })*/}
+          {/*  }*/}
+          {/*  fullWidth*/}
+          {/*  margin="normal"*/}
+          {/*/>*/}
           <TextField
             label="점주 번호"
             value={updatedSpot.sno}

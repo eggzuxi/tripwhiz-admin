@@ -39,7 +39,17 @@ const useAuthStore = create(
       },
 
       setAdmin: (name, id, accessToken, refreshToken) => {
-        // 상태 업데이트 및 로컬 스토리지 저장
+        // 점주 상태 초기화
+        set(() => ({
+          storeowner: {
+            name: null,
+            id: null,
+            accessToken: null,
+            refreshToken: null,
+          },
+        }));
+
+        // 관리자 상태 업데이트
         localStorage.setItem('adminName', name);
         localStorage.setItem('adminId', id);
         localStorage.setItem('adminAccessToken', accessToken);
@@ -51,7 +61,17 @@ const useAuthStore = create(
       },
 
       setStoreowner: (name, id, accessToken, refreshToken) => {
-        // 상태 업데이트 및 로컬 스토리지 저장
+        // 관리자 상태 초기화
+        set(() => ({
+          admin: {
+            name: null,
+            id: null,
+            accessToken: null,
+            refreshToken: null,
+          },
+        }));
+
+        // 점주 상태 업데이트
         localStorage.setItem('storeownerName', name);
         localStorage.setItem('storeownerId', id);
         localStorage.setItem('storeownerAccessToken', accessToken);
@@ -63,7 +83,6 @@ const useAuthStore = create(
       },
 
       logoutAdmin: () => {
-        // 로컬 스토리지에서 관리자 정보 제거
         localStorage.removeItem('adminName');
         localStorage.removeItem('adminId');
         localStorage.removeItem('adminAccessToken');
@@ -80,7 +99,6 @@ const useAuthStore = create(
       },
 
       logoutStoreowner: () => {
-        // 로컬 스토리지에서 점주 정보 제거
         localStorage.removeItem('storeownerName');
         localStorage.removeItem('storeownerId');
         localStorage.removeItem('storeownerAccessToken');

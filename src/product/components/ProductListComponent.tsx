@@ -1,22 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { PageRequestDTO, ProductListDTO } from '../../types/product';
+import { ProductListDTO } from '../../types/product';
 import { fetchProducts } from '../../api/productAPI';
-
+import { useNavigate } from 'react-router-dom';
 
 const ProductListComponent: React.FC = () => {
   const [products, setProducts] = useState<ProductListDTO[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [pageRequest, setPageRequest] = useState<PageRequestDTO>({ page: 1, size: 10 });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadProducts = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetchProducts(pageRequest);
-        console.log('API Response:', response); // 응답 데이터 확인
-        setProducts(response.dtoList || []); // dtoList를 상태에 설정
+        const response = await fetchProducts();
+        setProducts(response);
       } catch (err) {
         console.error('Error fetching products:', err);
         setError('Failed to load products.');
@@ -26,7 +25,11 @@ const ProductListComponent: React.FC = () => {
     };
 
     loadProducts();
-  }, [pageRequest]);
+  }, []);
+
+  const handleProductClick = (pno: number) => {
+    navigate(`/app/product/read/native/${pno}`);
+  };
 
   if (isLoading) {
     return <div>Loading products...</div>;
@@ -45,7 +48,9 @@ const ProductListComponent: React.FC = () => {
         <ul>
           {products.map((product) => (
             <li key={product.pno}>
-              {product.pname} - {product.price}원
+              <button onClick={() => handleProductClick(product.pno)}>
+                {product.pname} - {product.price}원
+              </button>
             </li>
           ))}
         </ul>

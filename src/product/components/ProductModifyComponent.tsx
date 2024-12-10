@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ProductListDTO, ProductReadDTO, Category, SubCategory } from '../../types/product';
-import { fetchProductById, updateProduct, fetchCategories, fetchSubCategories } from '../../api/productAPI';
+import { ProductListDTO, ProductReadDTO, Category, SubCategory, ThemeCategory } from '../../types/product';
+import { fetchProductById, updateProduct, fetchCategories, fetchSubCategories, fetchThemeCategories } from '../../api/productAPI';
 
 const ProductModifyComponent: React.FC = () => {
-  const { pno } = useParams<{ pno: string }>();
+  const { pno } = useParams<{ pno: string }>();  // URL에서 pno를 받음
   const navigate = useNavigate();
 
   // 상태 관리
@@ -13,6 +13,7 @@ const ProductModifyComponent: React.FC = () => {
   const [imageFiles, setImageFiles] = useState<File[] | null>(null);
   const [categories, setCategories] = useState<Category[]>([]); // 카테고리 목록
   const [subCategories, setSubCategories] = useState<SubCategory[]>([]); // 서브카테고리 목록
+  const [themeCategories, setThemeCategories] = useState<ThemeCategory[]>([]); // 테마 카테고리 목록
   const [loading, setLoading] = useState<boolean>(true);
 
   // 카테고리 목록을 로드하는 함수
@@ -27,6 +28,20 @@ const ProductModifyComponent: React.FC = () => {
     };
 
     loadCategories();
+  }, []);
+
+  // 테마 카테고리 목록을 로드하는 함수
+  useEffect(() => {
+    const loadThemeCategories = async () => {
+      try {
+        const themeCategoryData = await fetchThemeCategories();
+        setThemeCategories(themeCategoryData);
+      } catch (error) {
+        console.error('Error fetching theme categories:', error);
+      }
+    };
+
+    loadThemeCategories();
   }, []);
 
   // 카테고리 변경 시 서브카테고리 목록 로드
@@ -45,37 +60,34 @@ const ProductModifyComponent: React.FC = () => {
     }
   }, [productListDTO?.category?.cno]);
 
+  // pno가 없거나 유효하지 않으면 종료
   useEffect(() => {
-    let isMounted = true; // 컴포넌트가 마운트 되어 있는지 확인하는 변수
-
-    if (!pno) return;
+    if (!pno || isNaN(Number(pno))) {
+      console.error('Invalid product ID:', pno);
+      setLoading(false);
+      return;
+    }
 
     const loadProduct = async (pno: number) => {
       try {
         const productData = await fetchProductById(pno);
-        if (isMounted) {
-          setProduct(productData);
-          setProductListDTO({
-            pname: productData.pname,
-            pdesc: productData.pdesc,
-            price: productData.price,
-            category: productData.category || { cno: 0, cname: '' }, // 초기값 설정
-            subCategory: productData.subCategory || { scno: 0, sname: '' }, // 초기값 설정
-            tnos: [], // 테마 카테고리는 필요시 수정
-          });
-          setLoading(false);
-        }
+        setProduct(productData);
+        setProductListDTO({
+          pname: productData.pname,
+          pdesc: productData.pdesc,
+          price: productData.price,
+          category: productData.category || { cno: 0, cname: '' },
+          subCategory: productData.subCategory || { scno: 0, sname: '' },
+          tnos: productData.tnos || [],
+        });
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching product:', error);
-        if (isMounted) setLoading(false);
+        setLoading(false);
       }
     };
 
-    loadProduct(Number(pno));
-
-    return () => {
-      isMounted = false;
-    };
+    loadProduct(Number(pno)); // pno를 숫자로 변환하여 전달
   }, [pno]);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,12 +97,15 @@ const ProductModifyComponent: React.FC = () => {
   };
 
   const handleUpdateProduct = async () => {
-    if (productListDTO) {
+    if (productListDTO && pno) {
       try {
+        console.log('Sending product update request with the following data:');
+        console.log('Product List DTO:', productListDTO);
+        console.log('Image Files:', imageFiles);
+
         const updatedProductPno = await updateProduct(Number(pno), productListDTO, imageFiles);
         console.log('Product updated:', updatedProductPno);
-        // 수정된 후 상품 목록 페이지로 리디렉션
-        navigate('/product/list'); // 상품 목록 페이지로 이동
+        navigate('/product/list');
       } catch (error) {
         console.error('Error updating product:', error);
       }
@@ -166,6 +181,25 @@ const ProductModifyComponent: React.FC = () => {
             {subCategories.map((subCategory) => (
               <option key={subCategory.scno} value={subCategory.scno}>
                 {subCategory.sname}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label>Theme Categories</label>
+          <select
+            value={productListDTO?.tnos || []}
+            onChange={(e) =>
+              setProductListDTO({
+                ...productListDTO!,
+                tnos: Array.from(e.target.selectedOptions, (option) => option.value),
+              })
+            }
+            multiple
+          >
+            {themeCategories.map((themeCategory) => (
+              <option key={themeCategory.tno} value={themeCategory.tno}>
+                {themeCategory.tname}
               </option>
             ))}
           </select>

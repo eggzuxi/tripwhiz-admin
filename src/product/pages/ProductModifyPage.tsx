@@ -5,7 +5,7 @@ import { number } from 'prop-types';
 function ProductModifyPage() {
   return (
     <div>
-      <ProductModifyComponent productId={1}/>
+      <ProductModifyComponent/>
     </div>
   );
 }

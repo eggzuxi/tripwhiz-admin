@@ -45,7 +45,7 @@ const productRouter: RouteObject[] = [
         element: <ProductAdd/>
       },
       {
-        path: 'read/:pno',
+        path: 'read/native/:pno',
         element: <ProductRead/>
       },
       {

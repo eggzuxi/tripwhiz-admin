@@ -3,6 +3,7 @@ import { getAllLuggageMoves } from '../../api/luggagemoveAPI';
 import useAuthStore from '../../AuthState';
 import { LuggageMove } from '../../types/luggagemove';
 import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, Typography, Button, Box, List, ListItem, ListItemText } from '@mui/material';
 
 const LuggageMoveList: React.FC = () => {
   const [luggageMoves, setLuggageMoves] = useState<LuggageMove[]>([]);
@@ -11,10 +12,7 @@ const LuggageMoveList: React.FC = () => {
 
   // 권한 및 토큰 확인 로그
   console.log('Current storeowner state:', storeowner);
-
-  console.log('------------------------------------------')
-
-
+  console.log('------------------------------------------');
   console.log('Access Token:', storeowner?.accessToken);
 
   const fetchLuggageMoves = async () => {
@@ -36,18 +34,67 @@ const LuggageMoveList: React.FC = () => {
   }, [storeowner?.accessToken]);
 
   return (
-    <div>
-      <h1>수화물 이동 목록</h1>
-      <ul>
-        {luggageMoves.map((move) => (
-          <li key={move.lmno} style={{ marginBottom: '1rem' }}>
-            <p>출발: {move.sourceSpotName} ➔ 도착: {move.destinationSpotName}</p>
-            <p>상태: {move.status}</p>
-            <button onClick={() => navigate(`/luggagemove/${move.lmno}`)}>상세보기</button>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" bgcolor="#f5f5f5">
+      <Card
+        sx={{
+          width: '80%',
+          maxWidth: '800px',
+          p: 4,
+          boxShadow: 3,
+          background: '#ffffff',
+          borderRadius: 2, // 약간 둥근 모서리
+        }}
+      >
+        <CardContent>
+          <Typography variant="h4" component="div" textAlign="center" gutterBottom>
+            수화물 이동 목록
+          </Typography>
+          <List>
+            {luggageMoves.map((move) => (
+              <ListItem
+                key={move.lmno}
+                sx={{
+                  border: '1px solid #e0e0e0',
+                  borderRadius: 2,
+                  mb: 2,
+                  p: 2,
+                  '&:hover': {
+                    backgroundColor: '#f9f9f9',
+                  },
+                }}
+              >
+                <ListItemText
+                  primary={
+                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                      출발: {move.sourceSpotName} ➔ 도착: {move.destinationSpotName}
+                    </Typography>
+                  }
+                  secondary={
+                    <Typography variant="body2" color="textSecondary">
+                      상태: {move.status}
+                    </Typography>
+                  }
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => navigate(`/luggagemove/${move.lmno}`)}
+                  sx={{
+                    ml: 2,
+                    px: 3,
+                    py: 1,
+                    fontWeight: 'bold',
+                    textTransform: 'none', // 버튼 텍스트 소문자 유지
+                  }}
+                >
+                  상세보기
+                </Button>
+              </ListItem>
+            ))}
+          </List>
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 

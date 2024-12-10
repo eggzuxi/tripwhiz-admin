@@ -13,6 +13,7 @@ import SpotRouter from './spotRouter';
 import adminRouter from './adminRouter';
 import luggageMoveRouter from './luggageMoveRouter';
 import luggagestorageRouter from './luggagestorageRouter';
+import memberRouter from './memberRouter';
 
 const Loader = (Component) => (props) =>
   (
@@ -80,7 +81,8 @@ const mainRouter: RouteObject[] = [
       ...storeOwnerRouter,
       ...adminRouter,
       ...luggageMoveRouter,
-      ...luggagestorageRouter
+      ...luggagestorageRouter,
+      ...memberRouter
     ]
   }
 ];

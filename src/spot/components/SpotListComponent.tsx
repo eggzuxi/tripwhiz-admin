@@ -76,7 +76,7 @@ const SpotListComponent = () => {
                 <CardContent>
                   <Typography variant="h6">{spot.spotname}</Typography>
                   <Typography variant="body1">주소: {spot.address}</Typography>
-                  <Typography variant="body1">전화: {spot.tel}</Typography>
+                  {/*<Typography variant="body1">전화: {spot.tel}</Typography>*/}
                   <Typography variant="body2">점주 번호: {spot.sno}</Typography>
                   <Typography variant="body2">점주 이름: {spot.sname}</Typography>
                   <Button

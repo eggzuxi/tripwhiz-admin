@@ -9,7 +9,7 @@ function LoginComponent() {
   const [credentials, setCredentials] = useState({ id: "", pw: "", role: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { setAdmin, setStoreowner } = useAuthStore();
+  const { setAdmin, setStoreowner, logoutAdmin, logoutStoreowner } = useAuthStore();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setCredentials({
@@ -26,9 +26,11 @@ function LoginComponent() {
 
       if (data.accessToken && data.refreshToken) {
         if (credentials.role === "ADMIN") {
+          logoutStoreowner(); // 점주 상태 초기화
           const adminData = data as IAdmin;
           setAdmin(adminData.aname, adminData.id, adminData.accessToken, adminData.refreshToken);
         } else if (credentials.role === "STOREOWNER") {
+          logoutAdmin(); // 관리자 상태 초기화
           const storeOwnerData = data as IStoreOwner;
           setStoreowner(storeOwnerData.sname, storeOwnerData.id, storeOwnerData.accessToken, storeOwnerData.refreshToken);
         }
@@ -81,6 +83,9 @@ function LoginComponent() {
             style={{ padding: "0.5rem", width: "100%" }}
             required
           >
+            <option value="" disabled>
+              Select Role
+            </option>
             <option value="ADMIN">Admin</option>
             <option value="STOREOWNER">Store Owner</option>
           </select>

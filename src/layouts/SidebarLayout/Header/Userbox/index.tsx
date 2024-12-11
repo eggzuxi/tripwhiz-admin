@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 import {
   Avatar,
@@ -22,6 +22,8 @@ import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
 import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
 import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
+import { logoutRequest } from '../../../../api/authAPI';
+import AuthState from '../../../../AuthState';
 
 const UserBoxButton = styled(Button)(
   ({ theme }) => `
@@ -67,6 +69,8 @@ function HeaderUserbox() {
 
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const { logoutAdmin, logoutStoreowner } = AuthState();
 
   const handleOpen = (): void => {
     setOpen(true);
@@ -74,6 +78,30 @@ function HeaderUserbox() {
 
   const handleClose = (): void => {
     setOpen(false);
+  };
+
+  const handleSignOut = async (): Promise<void> => {
+    try {
+      const refreshToken = localStorage.getItem('adminRefreshToken') || localStorage.getItem('storeownerRefreshToken');
+      if (!refreshToken) {
+        throw new Error('No refresh token found');
+      }
+
+      // 로그아웃 API 호출
+      await logoutRequest(refreshToken);
+
+      // Zustand의 상태 초기화
+      if (localStorage.getItem('adminRefreshToken')) {
+        logoutAdmin();
+      } else if (localStorage.getItem('storeownerRefreshToken')) {
+        logoutStoreowner();
+      }
+
+      // 로그인 페이지로 리다이렉트
+      navigate('/login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   return (
@@ -135,7 +163,7 @@ function HeaderUserbox() {
         </List>
         <Divider />
         <Box sx={{ m: 1 }}>
-          <Button color="primary" fullWidth>
+          <Button color="primary" fullWidth onClick={handleSignOut}>
             <LockOpenTwoToneIcon sx={{ mr: 1 }} />
             Sign out
           </Button>

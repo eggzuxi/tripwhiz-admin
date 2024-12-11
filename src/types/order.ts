@@ -15,6 +15,7 @@ export interface OrderListDTO {
 export interface OrderItemDTO {
   pname: string;
   amount: number;
+  price: number;
 }
 
 // 주문 상세에서 사용하는 데이터 타입

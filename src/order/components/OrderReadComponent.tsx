@@ -82,7 +82,7 @@ function OrderReadComponent() {
                   수량: {products.amount}
                 </Typography>
                 <Typography variant="body2" gutterBottom>
-                  상품 가격: {products.price?.toLocaleString()}원
+                  상품 가격: {products.price.toLocaleString()}원
                 </Typography>
               </Paper>
             </Grid>

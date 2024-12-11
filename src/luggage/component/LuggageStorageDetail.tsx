@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getLuggageStorageDetails, updateLuggageStorageStatus } from '../../api/luggagestorageAPI';
+import { getLuggageStorageDetails, updateLuggageStorageStatus } from '../../api/luggageStorageApi';
 import useAuthStore from '../../AuthState';
 import { LuggageStorage } from '../../types/luggagestorage';
 

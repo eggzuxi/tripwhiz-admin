@@ -45,7 +45,7 @@
     "zustand": "^4.3.5"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set HOST=tripwhiz.store && react-scripts start",
     "build": "react-scripts build",
     "eject": "react-scripts eject",
     "lint": "eslint .",

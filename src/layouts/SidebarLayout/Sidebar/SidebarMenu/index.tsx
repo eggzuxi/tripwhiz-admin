@@ -239,7 +239,7 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
-                  to="/ord/list"
+                  to="/app/ord/list"
                   startIcon={<TableChartTwoToneIcon />}
                 >
                   ORDER
@@ -248,7 +248,7 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
-                  to="/boa/list"
+                  to="/app/boa/list"
                   startIcon={<TableChartTwoToneIcon />}
                 >
                   BOARD
@@ -257,7 +257,7 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
-                  to="/product/list"
+                  to="/app/product/list"
                   startIcon={<TableChartTwoToneIcon />}
                 >
                   Product
@@ -266,7 +266,7 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
-                  to="/stock/list"
+                  to="/app/stock/list"
                   startIcon={<TableChartTwoToneIcon />}
                 >
                   STOCK
@@ -275,7 +275,7 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
-                  to="/qna/list"
+                  to="/app/qna/list"
                   startIcon={<TableChartTwoToneIcon />}
                 >
                   Q&A
@@ -284,7 +284,7 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
-                  to="/faq/list"
+                  to="/app/faq/list"
                   startIcon={<TableChartTwoToneIcon />}
                 >
                   FAQ

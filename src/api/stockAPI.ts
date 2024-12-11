@@ -2,7 +2,7 @@ import axios from 'axios';
 import { IStock, IStockResponse } from '../types/stock';
 
 
-const host ='http://localhost:8080/api/stock';
+const host ='http://localhost:8082/api/stock';
 
 
 

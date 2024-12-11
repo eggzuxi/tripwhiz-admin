@@ -1,3 +1,4 @@
+// Spot 인터페이스
 export interface Spot {
   spno: number;
   spotname: string;
@@ -10,6 +11,7 @@ export interface Spot {
 
 }
 
+// 페이지네이션 응답 타입
 export interface PageResponseDTO<T> {
   dtoList: T[];
   pageNumList: number[];

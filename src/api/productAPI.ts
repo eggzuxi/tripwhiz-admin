@@ -15,13 +15,20 @@ import useAuthStore from '../AuthState';
 export const fetchProducts = async (): Promise<ProductListDTO[]> => {
   try {
     const response = await jwtAxios.get('/admin/product/list');
-    console.log('API Response:', response.data); // 확인용 콘솔 로그
+
+    // 추가 디버깅용 로그
+    console.log('Response Status:', response.status); // 응답 상태 코드
+    console.log('Response Headers:', response.headers); // 응답 헤더
+    console.log('Response Data Type:', typeof response.data); // 응답 데이터 타입
+    console.log('Response Data:', response.data); // 응답 데이터
+
     return response.data; // 배열 반환
   } catch (error) {
     console.error('Error Fetching Products:', error);
     throw error;
   }
 };
+
 
 // 상품 상세 조회 (단일 객체 반환)
 export const fetchProductById = async (pno: number): Promise<ProductReadDTO> => {
@@ -32,6 +39,40 @@ export const fetchProductById = async (pno: number): Promise<ProductReadDTO> => 
     return response.data;
   } catch (error) {
     console.error('Error Fetching Product by ID:', error);
+    throw error;
+  }
+};
+
+// 상품 검색
+export const fetchProductsWithFilters = async (
+  keyword?: string,
+  minPrice?: number,
+  maxPrice?: number,
+  tno?: number,
+  cno?: number,
+  scno?: number,
+  pageRequestDTO?: PageRequestDTO
+): Promise<{ dtoList: ProductListDTO[]; totalCount: number }> => {
+  console.log('Fetching Products with Filters:', { keyword, minPrice, maxPrice, tno, cno, scno, pageRequestDTO });
+
+  try {
+    const response = await jwtAxios.get(`/admin/product/list/search`, {
+      params: {
+        keyword,
+        minPrice,
+        maxPrice,
+        tno,
+        cno,
+        scno,
+        page: pageRequestDTO?.page,
+        size: pageRequestDTO?.size,
+      },
+    });
+
+    console.log('Search API Response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error Fetching Products with Filters:', error);
     throw error;
   }
 };
@@ -100,6 +141,11 @@ export const updateProduct = async (
   const token = admin?.accessToken || storeowner?.accessToken;
   console.log("Authorization Token:", token); // 토큰 로그
   console.log(`Sending update request for product with ID: ${pno}`);
+
+  // 디버깅용 콘솔 로그 추가
+  console.log('Updating Product - pno:', pno);
+  console.log('FormData:', Array.from(formData.entries()));
+
 
   try {
     const response = await jwtAxios.put(`/admin/product/update/${pno}`, formData, {

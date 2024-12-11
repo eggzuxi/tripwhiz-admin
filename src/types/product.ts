@@ -13,8 +13,9 @@ export interface SubCategory {
 // 첨부 파일 (AttachFile) 타입 정의
 export interface AttachFile {
   ord: number; // 파일 순서
-  fileName: string; // 파일 이름
+  file_name: string; // 파일 이름 (서버와 일치하도록 수정)
 }
+
 
 // 테마 카테고리 (ThemeCategory) 타입 정의
 export interface ThemeCategory {
@@ -38,14 +39,14 @@ export interface Product {
 
 // 상품 목록 DTO (ProductListDTO) 타입 정의
 export interface ProductListDTO {
-  pno?: number; // 상품 번호 (optional)
+  pno: number; // 상품 번호 (optional)
   pname: string; // 상품 이름
   price: number; // 상품 가격
   pdesc: string; // 상품 설명
   category: Category; // 상위 카테고리
   subCategory: SubCategory; // 하위 카테고리
   tnos: number[]; // 테마 카테고리 ID 배열
-  attachFiles?: AttachFile[]; // 첨부 파일 목록 (optional)
+  attachFiles: AttachFile[]; // 첨부 파일 목록 (optional)
 }
 
 // 상품 조회 DTO (ProductReadDTO) 타입 정의

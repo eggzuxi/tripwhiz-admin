@@ -4,7 +4,7 @@ import { ProductListDTO, ProductReadDTO, Category, SubCategory, ThemeCategory } 
 import { fetchProductById, updateProduct, fetchCategories, fetchSubCategories, fetchThemeCategories } from '../../api/productAPI';
 
 const ProductModifyComponent: React.FC = () => {
-  const { pno } = useParams<{ pno: string }>();  // URL에서 pno를 받음
+  const { pno } = useParams<{ pno: string }>(); // URL에서 pno를 받음
   const navigate = useNavigate();
 
   // 상태 관리
@@ -72,7 +72,10 @@ const ProductModifyComponent: React.FC = () => {
       try {
         const productData = await fetchProductById(pno);
         setProduct(productData);
+
+        // pno 포함하여 DTO 구성
         setProductListDTO({
+          pno: Number(pno), // pno 추가
           pname: productData.pname,
           pdesc: productData.pdesc,
           price: productData.price,
@@ -100,7 +103,7 @@ const ProductModifyComponent: React.FC = () => {
     if (productListDTO && pno) {
       try {
         console.log('Sending product update request with the following data:');
-        console.log('Product List DTO:', productListDTO);
+        console.log('Product List DTO:', productListDTO); // pno가 포함되었는지 확인
         console.log('Image Files:', imageFiles);
 
         const updatedProductPno = await updateProduct(Number(pno), productListDTO, imageFiles);
@@ -192,7 +195,7 @@ const ProductModifyComponent: React.FC = () => {
             onChange={(e) =>
               setProductListDTO({
                 ...productListDTO!,
-                tnos: Array.from(e.target.selectedOptions, (option) => option.value),
+                tnos: Array.from(e.target.selectedOptions, (option) => +option.value),
               })
             }
             multiple

@@ -1,5 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { Category, ProductListDTO, SubCategory, ThemeCategory } from '../../types/product';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Grid,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+  InputLabel,
+  FormControl,
+} from '@mui/material';
+import {
+  Category,
+  ProductListDTO,
+  SubCategory,
+  ThemeCategory,
+  AttachFile,
+} from '../../types/product';
 import {
   createProduct,
   fetchCategories,
@@ -7,30 +27,30 @@ import {
   fetchThemeCategories,
 } from '../../api/productAPI';
 
-const AddComponent: React.FC = () => {
+const AddComponent = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
   const [themeCategories, setThemeCategories] = useState<ThemeCategory[]>([]);
   const [product, setProduct] = useState<ProductListDTO>({
+    pno: 0,
     pname: '',
     price: 0,
     pdesc: '',
-    category: {} as Category,
-    subCategory: {} as SubCategory,
+    category: { cno: 0, cname: '' },
+    subCategory: { scno: 0, sname: '' },
     tnos: [],
     attachFiles: [],
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Load categories and theme categories on mount
   useEffect(() => {
     const loadCategories = async () => {
       try {
         const categoryData = await fetchCategories();
         setCategories(categoryData);
-      } catch (err) {
-        setError('Failed to load categories.');
+      } catch {
+        setError('카테고리를 불러오는데 실패했습니다.');
       }
     };
 
@@ -38,8 +58,8 @@ const AddComponent: React.FC = () => {
       try {
         const themeData = await fetchThemeCategories();
         setThemeCategories(themeData);
-      } catch (err) {
-        setError('Failed to load theme categories.');
+      } catch {
+        setError('테마 카테고리를 불러오는데 실패했습니다.');
       }
     };
 
@@ -47,39 +67,35 @@ const AddComponent: React.FC = () => {
     loadThemeCategories();
   }, []);
 
-  // Handle category change
-  const handleCategoryChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedCategory = categories.find(
-      (category) => category.cno === parseInt(e.target.value, 10)
-    );
-    setProduct({ ...product, category: selectedCategory || ({} as Category), subCategory: {} as SubCategory });
+  const handleCategoryChange = async (e: React.ChangeEvent<{ value: unknown }>) => {
+    const selectedCategory = categories.find((category) => category.cno === e.target.value);
+    setProduct({
+      ...product,
+      category: selectedCategory || { cno: 0, cname: '' },
+      subCategory: { scno: 0, sname: '' },
+    });
     setSubCategories([]);
 
     if (selectedCategory) {
       try {
         const subCategoryData = await fetchSubCategories(selectedCategory.cno);
         setSubCategories(subCategoryData);
-      } catch (err) {
-        setError('Failed to load subcategories.');
+      } catch {
+        setError('서브카테고리를 불러오는데 실패했습니다.');
       }
     }
   };
 
-  // Handle sub-category change
-  const handleSubCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedSubCategory = subCategories.find(
-      (subCategory) => subCategory.scno === parseInt(e.target.value, 10)
-    );
-    setProduct({ ...product, subCategory: selectedSubCategory || ({} as SubCategory) });
+  const handleSubCategoryChange = (e: React.ChangeEvent<{ value: unknown }>) => {
+    const selectedSubCategory = subCategories.find((subCategory) => subCategory.scno === e.target.value);
+    setProduct({ ...product, subCategory: selectedSubCategory || { scno: 0, sname: '' } });
   };
 
-  // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setProduct({ ...product, [name]: value });
   };
 
-  // Handle file changes
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
@@ -87,86 +103,143 @@ const AddComponent: React.FC = () => {
     }
   };
 
-  // Handle theme selection
-  const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedThemes = Array.from(e.target.selectedOptions).map((option) => parseInt(option.value, 10));
-    setProduct({ ...product, tnos: selectedThemes });
+  const handleThemeChange = (e: React.ChangeEvent<{ value: unknown }>) => {
+    setProduct({ ...product, tnos: e.target.value as number[] });
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Extract necessary fields for submission
     const formattedProduct = {
       ...product,
-      cno: product.category?.cno || null,
-      scno: product.subCategory?.scno || null,
+      cno: product.category.cno,
+      scno: product.subCategory.scno,
       category: undefined,
       subCategory: undefined,
     };
 
     try {
       const response = await createProduct(formattedProduct, imageFiles);
-      alert(`Product created successfully with ID: ${response}`);
-    } catch (err) {
-      setError('Failed to create product.');
+      alert(`상품이 성공적으로 생성되었습니다! ID: ${response}`);
+    } catch {
+      setError('상품 생성에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
   return (
-    <div>
-      <h2>Add Product</h2>
-      {error && <div className="text-red-500">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="pname"
-          placeholder="Product Name"
-          onChange={handleInputChange}
-        />
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          onChange={handleInputChange}
-        />
-        <textarea
-          name="pdesc"
-          placeholder="Description"
-          onChange={handleInputChange}
-        />
-        <select name="category" onChange={handleCategoryChange}>
-          <option value="">Select Category</option>
-          {categories.map((category) => (
-            <option key={category.cno} value={category.cno}>
-              {category.cname}
-            </option>
-          ))}
-        </select>
-        <select
-          name="subCategory"
-          onChange={handleSubCategoryChange}
-          disabled={!subCategories.length}
-        >
-          <option value="">Select SubCategory</option>
-          {subCategories.map((subCategory) => (
-            <option key={subCategory.scno} value={subCategory.scno}>
-              {subCategory.sname}
-            </option>
-          ))}
-        </select>
-        <select multiple onChange={handleThemeChange}>
-          {themeCategories.map((theme) => (
-            <option key={theme.tno} value={theme.tno}>
-              {theme.tname}
-            </option>
-          ))}
-        </select>
-        <input type="file" multiple onChange={handleFileChange} />
-        <button type="submit">Add Product</button>
-      </form>
-    </div>
+    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+      <Card sx={{ maxWidth: 600, width: '100%' }}>
+        <CardHeader title="상품 추가" sx={{ textAlign: 'center' }} />
+        <CardContent>
+          {error && <Typography color="error" variant="body1">{error}</Typography>}
+          <form onSubmit={handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="상품명"
+                  name="pname"
+                  variant="outlined"
+                  onChange={handleInputChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="가격"
+                  name="price"
+                  type="number"
+                  variant="outlined"
+                  onChange={handleInputChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="설명"
+                  name="pdesc"
+                  variant="outlined"
+                  multiline
+                  rows={4}
+                  onChange={handleInputChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel>카테고리</InputLabel>
+                  <Select
+                    value={product.category?.cno || ''}
+                    onChange={handleCategoryChange}
+                    label="카테고리"
+                  >
+                    <MenuItem value="">카테고리를 선택하세요</MenuItem>
+                    {categories.map((category) => (
+                      <MenuItem key={category.cno} value={category.cno}>
+                        {category.cname}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth disabled={!subCategories.length}>
+                  <InputLabel>서브카테고리</InputLabel>
+                  <Select
+                    value={product.subCategory?.scno || ''}
+                    onChange={handleSubCategoryChange}
+                    label="서브카테고리"
+                  >
+                    <MenuItem value="">서브카테고리를 선택하세요</MenuItem>
+                    {subCategories.map((subCategory) => (
+                      <MenuItem key={subCategory.scno} value={subCategory.scno}>
+                        {subCategory.sname}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel>테마 카테고리</InputLabel>
+                  <Select
+                    multiple
+                    value={product.tnos}
+                    onChange={handleThemeChange}
+                    label="테마 카테고리"
+                  >
+                    {themeCategories.map((theme) => (
+                      <MenuItem key={theme.tno} value={theme.tno}>
+                        {theme.tname}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  component="label"
+                  fullWidth
+                >
+                  이미지 업로드
+                  <input
+                    type="file"
+                    hidden
+                    multiple
+                    onChange={handleFileChange}
+                  />
+                </Button>
+              </Grid>
+              <Grid item xs={12}>
+                <Button type="submit" variant="contained" color="primary" fullWidth>
+                  상품 추가
+                </Button>
+              </Grid>
+            </Grid>
+          </form>
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 

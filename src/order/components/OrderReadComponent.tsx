@@ -10,25 +10,25 @@ import {
   Button,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-import { IOrderRead } from "../../types/order"; // 적절한 타입 import
-import { cancelOrder, getOrderDetails } from '../../api/orderAPI'; // API 호출 함수 import
+import { OrderReadDTO } from "../../types/order";
+import { fetchOrderDetails } from '../../api/orderAPI';
 
 // 초기 상태
-const initialState: IOrderRead = {
+const initialState: OrderReadDTO = {
   ono: 0,
-  products: [], // IOrderItem[] 형태로 초기화
+  products: [], // OrderItemDTO 형태로 초기화
 };
 
 function OrderReadComponent() {
-  const { ono } = useParams(); // URL에서 주문 번호 가져오기
+  const { ono } = useParams<{ ono: string }>(); // URL에서 주문 번호 가져오기
   const navigate = useNavigate();
-  const [orderDetails, setOrderDetails] = useState<IOrderRead>(initialState); // 초기 상태 사용
+  const [orderDetails, setOrderDetails] = useState<OrderReadDTO>(initialState); // 초기 상태 사용
 
   useEffect(() => {
-    const fetchOrderDetails = async () => {
+    const fetchOrderData = async () => {
       try {
         if (ono) {
-          const response = await getOrderDetails(Number(ono));
+          const response = await fetchOrderDetails(Number(ono));
           setOrderDetails(response);
         }
       } catch (error) {
@@ -36,21 +36,8 @@ function OrderReadComponent() {
       }
     };
 
-    fetchOrderDetails();
+    fetchOrderData();
   }, [ono]);
-
-  // 이거 구현 안됨
-  const handleCancelOrder = async (ono:number) => {
-
-    const result = await cancelOrder(ono); // 주문 취소 API 호출
-
-    if (result) {
-      console.log(`Order Cancelled Successfully: ${result}`);
-    } else {
-      console.error('Failed to cancel the order. Please try again.');
-    }
-
-  };
 
   const goBack = () => {
     navigate(-1); // 이전 페이지로 이동
@@ -69,19 +56,6 @@ function OrderReadComponent() {
             <Typography variant="h6" gutterBottom>
               주문 번호: {orderDetails.ono}
             </Typography>
-            {/*<Typography variant="body1" gutterBottom>*/}
-            {/*  총 가격:{" "}*/}
-            {/*  {orderDetails?.products?.length*/}
-            {/*    ? orderDetails.products*/}
-            {/*      .reduce(*/}
-            {/*        (total, item) =>*/}
-            {/*          total + item.product.price * item.amount,*/}
-            {/*        0*/}
-            {/*      )*/}
-            {/*      .toLocaleString()*/}
-            {/*    : 0}{" "}*/}
-            {/*  원*/}
-            {/*</Typography>*/}
           </CardContent>
         </Card>
       ) : (
@@ -98,21 +72,18 @@ function OrderReadComponent() {
 
       {orderDetails.products.length > 0 ? (
         <Grid container spacing={3}>
-          {orderDetails.products.map((item, index) => (
+          {orderDetails.products.map((products, index) => (
             <Grid item xs={12} md={6} lg={4} key={index}>
               <Paper elevation={3} sx={{ padding: 2 }}>
-                {/*<Typography variant="body1" fontWeight="bold" gutterBottom>*/}
-                {/*  상품 이름: {item.product.pname || "N/A"}*/}
-                {/*</Typography>*/}
-                {/*<Typography variant="body2" gutterBottom>*/}
-                {/*  상품 설명: {item.product.pdesc || "N/A"}*/}
-                {/*</Typography>*/}
-                {/*<Typography variant="body2" gutterBottom>*/}
-                {/*  수량: {item.amount}*/}
-                {/*</Typography>*/}
-                {/*<Typography variant="body2" gutterBottom>*/}
-                {/*  가격: {(item.product.price * item.amount).toLocaleString()} 원*/}
-                {/*</Typography>*/}
+                <Typography variant="body1" fontWeight="bold" gutterBottom>
+                  상품 이름: {products.pname || "N/A"}
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  수량: {products.amount}
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  상품 가격: {products.price?.toLocaleString()}원
+                </Typography>
               </Paper>
             </Grid>
           ))}
@@ -128,9 +99,6 @@ function OrderReadComponent() {
       <Box display="flex" justifyContent="center" gap={2} marginTop={3}>
         <Button variant="contained" color="primary" onClick={goBack}>
           뒤로가기
-        </Button>
-        <Button variant="outlined" color="error" onClick={() => cancelOrder(Number(ono))}>
-          주문 취소
         </Button>
       </Box>
     </Box>

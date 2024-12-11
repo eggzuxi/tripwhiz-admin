@@ -1,18 +1,44 @@
-import { Category, PageRequestDTO, ProductListDTO, ProductReadDTO, SubCategory, ThemeCategory } from '../types/product';
+import {
+  Category,
+  PageRequestDTO,
+  ProductListDTO,
+  ProductReadDTO,
+  SubCategory,
+  ThemeCategory
+} from '../types/product';
 import jwtAxios from '../util/jwtUtil';
-
+import useAuthStore from '../AuthState';
 
 // 상품 관련 API
-export const fetchProducts = async (
-  params: PageRequestDTO
-): Promise<{ dtoList: ProductListDTO[] }> => {
-  console.log('Fetching Products with params:', params);
+
+// 상품 목록 조회 (배열 반환)
+export const fetchProducts = async (): Promise<ProductListDTO[]> => {
   try {
-    const response = await jwtAxios.get(`/admin/product/list`, { params });
-    console.log('API Response:', response.data);
-    return response.data;
+    const response = await jwtAxios.get('/admin/product/list');
+
+    // 추가 디버깅용 로그
+    console.log('Response Status:', response.status); // 응답 상태 코드
+    console.log('Response Headers:', response.headers); // 응답 헤더
+    console.log('Response Data Type:', typeof response.data); // 응답 데이터 타입
+    console.log('Response Data:', response.data); // 응답 데이터
+
+    return response.data; // 배열 반환
   } catch (error) {
     console.error('Error Fetching Products:', error);
+    throw error;
+  }
+};
+
+
+// 상품 상세 조회 (단일 객체 반환)
+export const fetchProductById = async (pno: number): Promise<ProductReadDTO> => {
+  console.log('Fetching Product by ID:', pno);  // 확인용 로그
+  try {
+    const response = await jwtAxios.get(`/admin/product/read/native/${pno}`);
+    console.log('Product Data:', response.data); // 응답 데이터 로그
+    return response.data;
+  } catch (error) {
+    console.error('Error Fetching Product by ID:', error);
     throw error;
   }
 };
@@ -51,61 +77,38 @@ export const fetchProductsWithFilters = async (
   }
 };
 
-export const fetchProductById = async (pno: number): Promise<ProductReadDTO> => {
-  console.log('Fetching Product by ID:', pno);
-  try {
-    const response = await jwtAxios.get(`/admin/product/read/native/${pno}`);
-    console.log('Product Data:', response.data);
-    return response.data;
-  } catch (error) {
-    console.error('Error Fetching Product by ID:', error);
-    throw error;
-  }
-};
 
-// createProduct 수정
+// 상품 생성
 export const createProduct = async (
   productListDTO: ProductListDTO,
   imageFiles?: File[]
 ): Promise<number> => {
   const formData = new FormData();
+
+  // JSON 데이터를 FormData에 추가
   formData.append('productListDTO', JSON.stringify(productListDTO));
 
+  // 이미지 파일을 FormData에 추가
   if (imageFiles) {
-    imageFiles.forEach((file) => {
+    imageFiles.forEach((file, index) => {
       formData.append('imageFiles', file);
     });
   }
 
-  console.log('FormData being sent:');
-  formData.forEach((value, key) => {
-    if (value instanceof File) {
-      console.log(`Key: ${key}, File Name: ${value.name}, Size: ${value.size}`);
-    } else {
-      console.log(`Key: ${key}, Value: ${value}`);
-    }
-  });
-
   try {
-    const response = await jwtAxios.post(`/admin/product/add`, formData, {
+    // multipart/form-data 요청 전송
+    const response = await jwtAxios.post('/admin/product/add', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
+
     console.log('Create Product Response:', response.data);
-    return response.data;
+    return response.data; // 반환된 Product ID
   } catch (error) {
     console.error('Error Creating Product:', error);
-    if (error.response) {
-      console.error('Response Error Details:');
-      console.error('Status:', error.response.status);
-      console.error('Data:', error.response.data);
-    } else if (error.request) {
-      console.error('Request Error:', error.request);
-    } else {
-      console.error('Other Error:', error.message);
-    }
     throw error;
   }
 };
+
 
 export const updateProduct = async (
   pno: number,
@@ -115,13 +118,15 @@ export const updateProduct = async (
   const formData = new FormData();
   formData.append('productListDTO', JSON.stringify(productListDTO));
 
-  // 이미지 파일이 있을 경우 FormData에 추가
   if (imageFiles) {
     imageFiles.forEach((file) => {
       formData.append('imageFiles', file);
     });
   }
 
+  console.log('FormData to send:', formData);
+
+  // 1. Log formData contents
   console.log('Updating Product with FormData:');
   formData.forEach((value, key) => {
     if (value instanceof File) {
@@ -131,51 +136,56 @@ export const updateProduct = async (
     }
   });
 
+  // 2. Log token and request details
+  const { admin, storeowner } = useAuthStore.getState();
+  const token = admin?.accessToken || storeowner?.accessToken;
+  console.log("Authorization Token:", token); // 토큰 로그
+  console.log(`Sending update request for product with ID: ${pno}`);
+
+  // 디버깅용 콘솔 로그 추가
+  console.log('Updating Product - pno:', pno);
+  console.log('FormData:', Array.from(formData.entries()));
+
+
   try {
-    // PUT 요청으로 상품 업데이트
-    const response = await jwtAxios.put(
-      `/admin/product/update/${pno}`,
-      formData,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }
-    );
+    const response = await jwtAxios.put(`/admin/product/update/${pno}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     console.log('Update Product Response:', response.data);
-    return response.data; // 응답 데이터 반환 (상품 번호)
+    return response.data;
   } catch (error) {
     console.error('Error Updating Product:', error);
     if (error.response) {
-      console.error('Response Error Details:');
-      console.error('Status:', error.response.status);
-      console.error('Data:', error.response.data);
-    } else if (error.request) {
-      console.error('Request Error:', error.request);
-    } else {
-      console.error('Other Error:', error.message);
+      console.error('Error Response:', error.response);
+      // 서버에서 전달하는 구체적인 오류 메시지 출력
+    } else if (error.message) {
+      console.error('Error Message:', error.message);
     }
-    throw error; // 에러 던지기
+    throw error;
   }
+
 };
 
 // 카테고리 관련 API
+
+// 카테고리 목록 조회 (배열 반환)
 export const fetchCategories = async (): Promise<Category[]> => {
-  console.log('Fetching Categories');
   try {
-    const response = await jwtAxios.get(`/categories`);
+    const response = await jwtAxios.get('/categories');
     console.log('Categories Data:', response.data);
-    return response.data;
+    return response.data; // 배열 반환
   } catch (error) {
     console.error('Error Fetching Categories:', error);
     throw error;
   }
 };
 
+// 하위 카테고리 조회 (배열 반환)
 export const fetchSubCategories = async (cno: number): Promise<SubCategory[]> => {
-  console.log('Fetching SubCategories for Category ID:', cno);
   try {
     const response = await jwtAxios.get(`/categories/${cno}/subcategories`);
     console.log('SubCategories Data:', response.data);
-    return response.data;
+    return response.data; // 배열 반환
   } catch (error) {
     console.error('Error Fetching SubCategories:', error);
     throw error;
@@ -183,12 +193,13 @@ export const fetchSubCategories = async (cno: number): Promise<SubCategory[]> =>
 };
 
 // 테마 관련 API
+
+// 테마 카테고리 목록 조회 (배열 반환)
 export const fetchThemeCategories = async (): Promise<ThemeCategory[]> => {
-  console.log('Fetching Theme Categories');
   try {
-    const response = await jwtAxios.get(`/admin/product/themes`);
+    const response = await jwtAxios.get('/admin/product/themes');
     console.log('Theme Categories Data:', response.data);
-    return response.data;
+    return response.data; // 배열 반환
   } catch (error) {
     console.error('Error Fetching Theme Categories:', error);
     throw error;

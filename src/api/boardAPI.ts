@@ -1,16 +1,10 @@
 import { IBoard } from '../types/board';
-import axios from 'axios';
-
-// main
-// const host = 'http://10.10.10.158:8080/api/boa';
-
-// localhost
-const host = 'http://localhost:8080/api/boa';
+import jwtAxios from '../util/jwtUtil';
 
 // 게시글 생성
 export const createBoard = async (board: IBoard): Promise<number> => {
   try {
-    const res = await axios.post(`${host}/add`, board);
+    const res = await jwtAxios.post(`/boa/add`, board);
     console.log('CreatedBoard Data:', res.data);
     return res.data;
   } catch (error) {
@@ -22,7 +16,7 @@ export const createBoard = async (board: IBoard): Promise<number> => {
 // 게시글 리스트 조회
 export const getBoardList = async (): Promise<IBoard[] | null> => {
   try {
-    const res = await axios.get<IBoard[]>(`${host}/list`);
+    const res = await jwtAxios.get<IBoard[]>(`/boa/list`);
     console.log('Fetched Data:', res.data);
     return res.data;
   } catch (error) {
@@ -38,7 +32,7 @@ export const getBoardList = async (): Promise<IBoard[] | null> => {
 // 특정 게시글 읽기
 export const getBoard = async (bno: number): Promise<IBoard | null> => {
   try {
-    const res = await axios.get<IBoard>(`${host}/read/${bno}`);
+    const res = await jwtAxios.get<IBoard>(`/boa/read/${bno}`);
     console.log('Fetched Data:', res.data);
     return res.data;
   } catch (error) {
@@ -53,7 +47,7 @@ export const getBoard = async (bno: number): Promise<IBoard | null> => {
 
 export const updateBoard = async (bno: number, board: IBoard): Promise<number> => {
   try {
-    const res = await axios.put(`${host}/update/${bno}`, board); // PUT 방식으로 수정
+    const res = await jwtAxios.put(`/boa/update/${bno}`, board); // PUT 방식으로 수정
     console.log('Updated board Data:', res.data);
     return res.data;
   } catch (error) {
@@ -62,11 +56,10 @@ export const updateBoard = async (bno: number, board: IBoard): Promise<number> =
   }
 };
 
-
 // 게시글 삭제
 export const deleteBoard = async (bno: number): Promise<number> => {
   try {
-    const res = await axios.delete(`${host}/delete/${bno}`);
+    const res = await jwtAxios.delete(`/boa/delete/${bno}`);
     console.log('Deleted board Data:', res.data);
     return res.data;
   } catch (error) {

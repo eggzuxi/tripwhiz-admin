@@ -82,6 +82,7 @@ const ProductModifyComponent: React.FC = () => {
           category: productData.category || { cno: 0, cname: '' },
           subCategory: productData.subCategory || { scno: 0, sname: '' },
           tnos: productData.tnos || [],
+          attachFiles: productData.attachFiles || [],
         });
         setLoading(false);
       } catch (error) {
@@ -191,7 +192,7 @@ const ProductModifyComponent: React.FC = () => {
         <div>
           <label>Theme Categories</label>
           <select
-            value={productListDTO?.tnos || []}
+            value={(productListDTO?.tnos || []).map(String)}
             onChange={(e) =>
               setProductListDTO({
                 ...productListDTO!,

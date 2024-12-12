@@ -11,7 +11,7 @@ import {
   TextField,
   Typography,
   InputLabel,
-  FormControl,
+  FormControl, SelectChangeEvent
 } from '@mui/material';
 import {
   Category,
@@ -67,13 +67,16 @@ const AddComponent = () => {
     loadThemeCategories();
   }, []);
 
-  const handleCategoryChange = async (e: React.ChangeEvent<{ value: unknown }>) => {
-    const selectedCategory = categories.find((category) => category.cno === e.target.value);
-    setProduct({
-      ...product,
+  const handleCategoryChange = async (event: SelectChangeEvent) => {
+    const selectedCategoryId = event.target.value; // 선택된 카테고리의 ID를 먼저 추출
+
+    const selectedCategory = categories.find((category) => category.cno === Number(selectedCategoryId));
+
+    setProduct((prevProduct) => ({
+      ...prevProduct,
       category: selectedCategory || { cno: 0, cname: '' },
       subCategory: { scno: 0, sname: '' },
-    });
+    }));
     setSubCategories([]);
 
     if (selectedCategory) {
@@ -86,9 +89,15 @@ const AddComponent = () => {
     }
   };
 
-  const handleSubCategoryChange = (e: React.ChangeEvent<{ value: unknown }>) => {
-    const selectedSubCategory = subCategories.find((subCategory) => subCategory.scno === e.target.value);
-    setProduct({ ...product, subCategory: selectedSubCategory || { scno: 0, sname: '' } });
+  const handleSubCategoryChange = (event: SelectChangeEvent) => {
+    // Access selected value directly
+    const selectedSubCategoryId = event.target.value;
+
+    const selectedSubCategory = subCategories.find((subCategory) => subCategory.scno === Number(selectedSubCategoryId));
+    setProduct((prevProduct) => ({
+      ...prevProduct,
+      subCategory: selectedSubCategory || { scno: 0, sname: '' },
+    }));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -103,8 +112,15 @@ const AddComponent = () => {
     }
   };
 
-  const handleThemeChange = (e: React.ChangeEvent<{ value: unknown }>) => {
-    setProduct({ ...product, tnos: e.target.value as number[] });
+  const handleThemeChange = (event: SelectChangeEvent<number[]>): void => {
+    // 선택된 값들을 직접 접근
+    const selectedThemeNos = event.target.value as number[];
+
+    // product 상태 업데이트
+    setProduct((prevProduct) => ({
+      ...prevProduct,
+      tnos: selectedThemeNos,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

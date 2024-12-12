@@ -86,7 +86,7 @@ const ProductListComponent: React.FC = () => {
 
   // moveToRead 메서드 구현
   const moveToRead = (pno: number) => {
-    navigate(`/product/read/native/${pno}`); // productId를 기반으로 상세 페이지로 이동
+    navigate(`/app/product/read/native/${pno}`); // productId를 기반으로 상세 페이지로 이동
   };
 
   if (isLoading) {

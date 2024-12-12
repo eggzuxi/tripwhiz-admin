@@ -11,6 +11,7 @@ import {
   Grid,
   Divider,
   Paper,
+  CircularProgress,
 } from '@mui/material';
 
 const ProductReadComponent: React.FC = () => {
@@ -47,61 +48,104 @@ const ProductReadComponent: React.FC = () => {
   }, [pno]);
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <Typography color="error" variant="h6">
+          Error: {error}
+        </Typography>
+      </Box>
+    );
   }
 
   if (!product) {
-    return <div>Loading product...</div>;
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
-    <Box sx={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <Card elevation={3}>
+    <Box sx={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
+      <Card elevation={4} sx={{ borderRadius: '10px', overflow: 'hidden' }}>
         <CardHeader
-          title={product.pname}
-          subheader={`Price: ${product.price.toLocaleString()}원`}
-          sx={{ textAlign: 'center', backgroundColor: '#f5f5f5' }}
+          title={
+            <Typography variant="h5" fontWeight="bold">
+              {product.pname}
+            </Typography>
+          }
+          subheader={
+            <Typography variant="subtitle1" color="textSecondary">
+              Price: {product.price.toLocaleString()} 원
+            </Typography>
+          }
+          sx={{
+            textAlign: 'center',
+            backgroundColor: '#f0f4f8',
+            padding: '16px',
+            borderBottom: '1px solid #ddd',
+          }}
         />
-        <CardContent>
-          <Grid container spacing={2}>
+        <CardContent sx={{ padding: '24px' }}>
+          <Grid container spacing={3}>
             <Grid item xs={12}>
-              <Typography variant="body1" gutterBottom>
-                {product.pdesc}
+              <Typography variant="body1" sx={{ marginBottom: 2, color: '#555' }}>
+                {product.pdesc || 'No description available for this product.'}
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="subtitle1">
+                <strong>Category:</strong> {product.category?.cname || 'N/A'}
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="subtitle1">
+                <strong>SubCategory:</strong> {product.subCategory?.sname || 'N/A'}
               </Typography>
             </Grid>
 
-            <Typography variant="subtitle1">
-              <strong>Category:</strong> {product.category?.cname || 'N/A'}
-            </Typography>
-            <Typography variant="subtitle1">
-              <strong>SubCategory:</strong> {product.subCategory?.sname || 'N/A'}
-            </Typography>
-
             {product.tnos?.length > 0 && (
               <Grid item xs={12}>
-                <Typography variant="subtitle1">
-                  <strong>Theme Categories:</strong>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Theme Categories:
                 </Typography>
-                <ul>
+                <ul style={{ paddingLeft: '20px' }}>
                   {product.tnos.map((tno) => (
-                    <li key={tno}>Theme ID: {tno}</li>
+                    <li key={tno} style={{ color: '#666' }}>
+                      Theme ID: {tno}
+                    </li>
                   ))}
                 </ul>
               </Grid>
             )}
 
             <Grid item xs={12}>
-              <Divider sx={{ marginY: 2 }} />
-              <Typography variant="h6">Images</Typography>
+              <Divider sx={{ marginY: 3 }} />
+              <Typography variant="h6" fontWeight="bold" gutterBottom>
+                Images
+              </Typography>
               {product?.attachFiles?.length > 0 ? (
                 <Grid container spacing={2} sx={{ marginTop: 1 }}>
                   {product.attachFiles.map((file, index) => (
                     <Grid item key={index} xs={4}>
-                      <Paper elevation={2} sx={{ padding: '5px', textAlign: 'center' }}>
+                      <Paper
+                        elevation={3}
+                        sx={{
+                          padding: '8px',
+                          textAlign: 'center',
+                          borderRadius: '8px',
+                          backgroundColor: '#f8f9fa',
+                        }}
+                      >
                         <img
                           src={`http://localhost:8082/api/admin/product/image/${file.file_name}`}
                           alt={`Attachment ${index + 1}`}
-                          style={{ width: '100%', height: 'auto', borderRadius: '5px' }}
+                          style={{
+                            width: '100%',
+                            height: 'auto',
+                            borderRadius: '5px',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                          }}
                         />
                       </Paper>
                     </Grid>

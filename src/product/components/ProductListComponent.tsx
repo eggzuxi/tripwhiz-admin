@@ -18,11 +18,13 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { fetchProducts, fetchProductsWithFilters } from '../../api/productAPI';
+import { useNavigate } from 'react-router-dom';
 
 const ProductListComponent: React.FC = () => {
   const [products, setProducts] = useState<ProductListDTO[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate()
 
   const [pageRequest, setPageRequest] = useState<PageRequestDTO>({ page: 1, size: 10 });
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -80,6 +82,11 @@ const ProductListComponent: React.FC = () => {
   const handleSearch = () => {
     setPageRequest((prev) => ({ ...prev, page: 1 }));
     loadFilteredProducts();
+  };
+
+  // moveToRead 메서드 구현
+  const moveToRead = (pno: number) => {
+    navigate(`/product/read/native/${pno}`); // productId를 기반으로 상세 페이지로 이동
   };
 
   if (isLoading) {
@@ -151,7 +158,7 @@ const ProductListComponent: React.FC = () => {
               </TableHead>
               <TableBody>
                 {products.map((product) => (
-                  <TableRow key={product.pno}>
+                  <TableRow key={product.pno} onClick={() => moveToRead(product.pno)}>
                     <TableCell>
                       {product.attachFiles && product.attachFiles.length > 0 && product.attachFiles[0].file_name ? (
                         <img
@@ -183,7 +190,7 @@ const ProductListComponent: React.FC = () => {
                     <TableCell>{product.pno}</TableCell>
                     <TableCell>{product.pname}</TableCell>
                     <TableCell>{`${product.price.toLocaleString()} 원`}</TableCell>
-                    <TableCell>{product.category?.cname || 'N/A'}</TableCell>
+                    <TableCell>{product.category.cname}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

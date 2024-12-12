@@ -3,7 +3,7 @@ import { refreshRequest } from "../api/commonAPI";
 import useAuthStore from "../AuthState";
 
 const jwtAxios = axios.create({
-    baseURL: "http://localhost:8082/api",
+    baseURL: "/api",
     // baseURL: "/api",
 });
 

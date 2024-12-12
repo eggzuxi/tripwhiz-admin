@@ -1,18 +1,14 @@
 import { ReactElement } from "react";
-import { IPageResponse } from "../../types/order";
+import { PageResponseDTO } from "../../types/page";
 import { Box, Button } from "@mui/material";
 
 interface Props {
-  pageResponse: IPageResponse;
+  pageResponse: PageResponseDTO<any>; // PageResponseDTO 타입 사용
+  onPageChange: (pageNum: number) => void; // 페이지 변경 핸들러 추가
 }
 
-const PageComponent = ({ pageResponse }: Props): ReactElement => {
+const PageComponent = ({ pageResponse, onPageChange }: Props): ReactElement => {
   const { current, pageNumList, next, prev } = pageResponse; // 수정된 필드 이름 사용
-
-  const changePage = (pageNum: number) => {
-    console.log(`Changing to page: ${pageNum}`);
-    // 페이지 변경 로직 (예: URL 파라미터 또는 상태 변경)
-  };
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" mt={4}>
@@ -21,7 +17,7 @@ const PageComponent = ({ pageResponse }: Props): ReactElement => {
         <Button
           variant="outlined"
           color="primary"
-          onClick={() => changePage(current - 1)}
+          onClick={() => onPageChange(current - 1)}
           sx={{ marginX: 1 }}
         >
           Prev
@@ -34,7 +30,7 @@ const PageComponent = ({ pageResponse }: Props): ReactElement => {
           key={num}
           variant={num === current ? "contained" : "outlined"} // 현재 페이지는 강조
           color={num === current ? "primary" : "inherit"}
-          onClick={() => changePage(num)}
+          onClick={() => onPageChange(num)}
           sx={{ marginX: 1 }}
         >
           {num}
@@ -46,7 +42,7 @@ const PageComponent = ({ pageResponse }: Props): ReactElement => {
         <Button
           variant="outlined"
           color="primary"
-          onClick={() => changePage(current + 1)}
+          onClick={() => onPageChange(current + 1)}
           sx={{ marginX: 1 }}
         >
           Next

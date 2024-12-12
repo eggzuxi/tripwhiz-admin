@@ -19,9 +19,10 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { IFaq, FaqCategory } from '../../../../tripwhiz-admin/src/types/faq';
-import { getFaqList, deleteFaq } from '../../../../tripwhiz-admin/src/api/faqAPI';
+import { IFaq, FaqCategory } from '../../types/faq';
+import { getFaqList, deleteFaq } from '../../api/faqAPI';
 import { useNavigate } from 'react-router-dom';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 const categories: FaqCategory[] = ['APP', '환불', '픽업', '매장', '영수증'];
 
@@ -134,10 +135,10 @@ function FaqListComponent() {
                 action={
                   <Box display="flex" gap={2}>
                     <Box style={{ cursor: 'pointer', color: '#007bff' }} onClick={() => handleEdit(faq.fno)}>
-                      <FontAwesomeIcon icon={faPenToSquare} size="lg" />
+                      <FontAwesomeIcon icon={faPenToSquare as IconProp} size="lg"></FontAwesomeIcon>
                     </Box>
                     <Box style={{ cursor: 'pointer', color: '#dc3545' }} onClick={() => handleDelete(faq.fno)}>
-                      <FontAwesomeIcon icon={faTrash} size="lg" />
+                      <FontAwesomeIcon icon={faTrash as IconProp} size="lg"></FontAwesomeIcon>
                     </Box>
                   </Box>
                 }

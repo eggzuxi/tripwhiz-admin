@@ -1,14 +1,9 @@
-import axios from 'axios';
+import jwtAxios from '../util/jwtUtil';
 import { IStock, IStockResponse } from '../types/stock';
-
-
-const host ='http://localhost:8082/api/stock';
-
-
 
 export const getStockQuantity = async (): Promise<IStock[]> => {
   try {
-    const res = await axios.get(`${host}`);
+    const res = await jwtAxios.get(`/stock`);
     console.log('Fetched Data:', res.data); // 데이터 확인
     // 응답이 성공적이면 데이터 반환
     return res.data.dtoList;
@@ -20,7 +15,7 @@ export const getStockQuantity = async (): Promise<IStock[]> => {
 
 export const updateStock = async (productId: string, quantity: number): Promise<IStockResponse> => {
   try {
-    const res = await axios.get(`${host}`);
+    const res = await jwtAxios.get(`/stock`);
     console.log('Fetched Data:', res.data); // 데이터 확인
     // 응답이 성공적이면 데이터 반환
     return res.data.dtoList;

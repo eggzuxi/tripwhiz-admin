@@ -88,6 +88,9 @@ const useAuthStore = create(
         localStorage.removeItem('adminAccessToken');
         localStorage.removeItem('adminRefreshToken');
 
+        // auth-storage 초기화
+        localStorage.removeItem('auth-storage');
+
         set(() => ({
           admin: {
             name: null,
@@ -103,6 +106,9 @@ const useAuthStore = create(
         localStorage.removeItem('storeownerId');
         localStorage.removeItem('storeownerAccessToken');
         localStorage.removeItem('storeownerRefreshToken');
+
+        // auth-storage 초기화
+        localStorage.removeItem('auth-storage');
 
         set(() => ({
           storeowner: {

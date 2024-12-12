@@ -41,3 +41,18 @@ export const refreshRequest = async (accessToken: string, refreshToken: string):
     throw error;
   }
 };
+
+// 로그아웃
+export const logoutRequest = async (refreshToken: string): Promise<void> => {
+  if (!refreshToken) {
+    throw new Error("유효하지 않은 요청: Refresh Token이 없습니다.");
+  }
+
+  try {
+    const res = await jwtAxios.post("/auth/logout", { refreshToken });
+    console.log("Logout successful:", res.data);
+  } catch (error) {
+    handleError(error, "로그아웃");
+    throw error;
+  }
+};

@@ -16,8 +16,9 @@ import {
 import PageComponent from "../../components/Page/PageComponent";
 import { OrderListDTO } from "../../types/order";
 import { fetchOrderList } from "../../api/orderAPI";
+import { sendTestNotification } from "../../api/fcmAPI"; // FCM 알림 전송 API 추가
 import { useNavigate } from "react-router-dom";
-import { PageRequestDTO, PageResponseDTO } from '../../types/page';
+import { PageRequestDTO, PageResponseDTO } from "../../types/page";
 
 const initialPageRequest: PageRequestDTO = {
   page: 1,
@@ -70,6 +71,28 @@ function OrderListComponent() {
     );
   };
 
+  const handleSendNotification = async () => {
+    if (selectedOrders.length === 0) {
+      alert("알림을 보낼 주문을 선택해주세요.");
+      return;
+    }
+
+    const selectedEmails = pageResponse.dtoList
+      .filter((order) => selectedOrders.includes(order.ono))
+      .map((order) => order.email);
+
+    try {
+      for (const email of selectedEmails) {
+        await sendTestNotification(email, "주문 알림", true);
+        console.log(`알림 전송 성공: ${email}`);
+      }
+      alert("알림이 성공적으로 전송되었습니다.");
+    } catch (error) {
+      console.error("알림 전송 실패:", error);
+      alert("알림 전송 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <Box padding={4}>
       <Typography variant="h4" marginBottom={2}>
@@ -103,7 +126,7 @@ function OrderListComponent() {
                     key={ono}
                     onClick={(e: React.MouseEvent<HTMLTableRowElement>) => {
                       const target = e.target as HTMLElement;
-                      if (target.tagName !== "INPUT") moveToRead(ono); // 태그 이름으로 체크
+                      if (target.tagName !== "INPUT") moveToRead(ono);
                     }}
                     sx={{ cursor: "pointer" }}
                   >
@@ -111,7 +134,7 @@ function OrderListComponent() {
                       <Checkbox
                         checked={selectedOrders.includes(ono)}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          e.stopPropagation(); // Prevents row click when checkbox is clicked
+                          e.stopPropagation();
                           handleCheckboxChange(ono);
                         }}
                       />
@@ -149,6 +172,15 @@ function OrderListComponent() {
           </Table>
         </TableContainer>
       )}
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleSendNotification}
+        sx={{ marginBottom: 2 }}
+      >
+        선택한 주문에 알림 보내기
+      </Button>
 
       <PageComponent
         pageResponse={pageResponse}

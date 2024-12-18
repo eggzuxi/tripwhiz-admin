@@ -8,24 +8,25 @@ const firebaseConfig = {
     storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
     messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
     appId: process.env.REACT_APP_FIREBASE_APP_ID,
+    measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
+export const messaging = getMessaging(app);
 
+// Service Worker 등록
 export const registerServiceWorker = async () => {
-    if ("serviceWorker" in navigator) {
+    if ('serviceWorker' in navigator) {
         try {
-            const registration = await navigator.serviceWorker.register(
-              "/firebase-messaging-sw.js"
-            );
-            console.log("Service Worker 등록 성공:", registration);
+            const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+            console.log('Service Worker 등록 성공:', registration);
         } catch (error) {
-            console.error("Service Worker 등록 실패:", error);
+            console.error('Service Worker 등록 실패:', error);
         }
     }
 };
 
+// FCM 토큰 요청
 export const requestFCMToken = async (): Promise<string | null> => {
     try {
         const token = await getToken(messaging, {
@@ -39,6 +40,7 @@ export const requestFCMToken = async (): Promise<string | null> => {
     }
 };
 
+// 알림 수신
 export const onMessageListener = () =>
   new Promise((resolve) => {
       onMessage(messaging, (payload) => {

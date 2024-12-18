@@ -14,10 +14,12 @@ const SpotListComponent = () => {
 
   // Admin 권한 확인
   useEffect(() => {
+
     if (!admin?.accessToken) {
       alert("Admin 권한이 필요합니다.");
       navigate("/login");
     }
+
   }, [admin, navigate]);
 
   // Spot 목록 가져오기

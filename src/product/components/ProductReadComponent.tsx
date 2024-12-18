@@ -138,7 +138,7 @@ const ProductReadComponent: React.FC = () => {
                         }}
                       >
                         <img
-                          src={`http://localhost:8082/api/admin/product/image/${file.file_name}`}
+                          src={`https://tripwhiz.store/api/admin/product/image/${file.file_name}`}
                           alt={`Attachment ${index + 1}`}
                           style={{
                             width: '100%',

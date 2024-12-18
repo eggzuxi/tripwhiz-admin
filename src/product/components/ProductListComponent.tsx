@@ -162,7 +162,7 @@ const ProductListComponent: React.FC = () => {
                     <TableCell>
                       {product.attachFiles && product.attachFiles.length > 0 && product.attachFiles[0].file_name ? (
                         <img
-                          src={`http://localhost:8082/api/admin/product/image/${product.attachFiles[0].file_name}`}
+                          src={`https://tripwhiz.store/api/admin/product/image/${product.attachFiles[0].file_name}`}
                           alt={product.pname}
                           style={{
                             width: '50px',
